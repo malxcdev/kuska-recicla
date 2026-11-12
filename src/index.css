@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Nunito+Sans:wght@400;600;700;800&display=swap');
+@import 'tailwindcss';
+
+:root {
+  font-family: 'Nunito Sans', sans-serif;
+  color: #1f3025;
+  background: #f2f5ef;
+  font-synthesis: none;
+  --ink: #1f3025;
+  --muted: #718077;
+  --green: #2f7041;
+  --green-dark: #225632;
+  --green-soft: #e1eddf;
+  --surface: #fff;
+  --line: #dfe5dc;
+  --cream: #f7f4ea;
+  --earth: #a66036;
+}
+
+@layer base {
+  body { min-width: 320px; min-height: 100dvh; margin: 0; background: #f2f5ef; }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  button:focus-visible { outline: 3px solid #a5c6aa; outline-offset: 2px; }
+  h1, h2, h3, p { margin: 0; }
+}
+
+* { box-sizing: border-box; }
+.auth-page { min-height: 100dvh; display: grid; grid-template-columns: minmax(420px, 1.05fr) minmax(480px, .95fr); background: #fbfcf9; }
+.auth-story { min-height: 100dvh; position: relative; overflow: hidden; padding: 34px clamp(34px,5vw,70px); color: white; background: linear-gradient(145deg,#245b36 0%,#367647 58%,#568d62 100%); }
+.auth-story .brand strong { color: white; }.auth-story .brand b { color: #e4bd7c; }.auth-story .brand small { color: #cfe0d2; }.auth-story .brand-mark { color: var(--green); background: white; }
+.auth-story-top { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; }.auth-story-top > span { color: #c8dbcc; font-size: 8px; font-weight: 800; letter-spacing: .14em; }
+.auth-story-copy { max-width: 560px; position: relative; z-index: 3; margin-top: clamp(70px,12vh,125px); }
+.auth-kicker { display: flex; align-items: center; gap: 7px; color: #e8d19c; font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+.auth-story h1 { margin-top: 16px; font: 700 clamp(38px,4.2vw,58px)/1.02 'Bricolage Grotesque'; letter-spacing: -2px; }.auth-story h1 em { color: #e4bd7c; font-style: normal; }
+.auth-story-copy > p { max-width: 490px; margin-top: 18px; color: #d8e6dc; font-size: 13px; line-height: 1.6; }
+.auth-benefits { max-width: 490px; margin-top: 35px; display: grid; gap: 15px; }.auth-benefits > div { display: flex; align-items: center; gap: 12px; }.auth-benefits > div > span { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 11px; color: #f0d49a; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.1); }.auth-benefits strong,.auth-benefits small { display: block; }.auth-benefits strong { font-size: 11px; }.auth-benefits small { margin-top: 2px; color: #c9ddce; font-size: 9px; }
+.auth-landscape { position: absolute; inset: auto 0 0; height: 190px; opacity: .6; }.auth-sun { width: 52px; height: 52px; position: absolute; right: 15%; top: 6px; border-radius: 50%; background: #e7bd73; box-shadow: 0 0 0 12px rgba(231,189,115,.1); }.auth-mountain { position: absolute; bottom: -28px; border-left: 190px solid transparent; border-right: 190px solid transparent; border-bottom: 160px solid #6e9671; }.auth-mountain.m1 { left: -80px; }.auth-mountain.m2 { right: -120px; border-bottom-color: #487958; }.auth-tree { position: absolute; z-index: 2; bottom: 12px; color: #1d5432; font-size: 50px; }.tree-one { left: 9%; }.tree-two { right: 12%; font-size: 65px; }
+.auth-truck { width: 106px; height: 55px; position: absolute; z-index: 3; left: 48%; bottom: 20px; }.auth-truck > span { width: 68px; height: 43px; display: grid; place-items: center; color: white; border-radius: 6px 3px 2px 2px; background: #c86e43; }.auth-truck b { width: 37px; height: 33px; position: absolute; right: 3px; bottom: 0; border-radius: 4px 10px 3px 2px; background: #dda061; }.auth-truck > i { width: 17px; height: 17px; position: absolute; bottom: -6px; border: 4px solid #173d27; border-radius: 50%; background: #b7c7b9; }.auth-truck > i:nth-of-type(1) { left: 13px; }.auth-truck > i:nth-of-type(2) { right: 10px; }
+.auth-community { position: absolute; z-index: 4; left: clamp(34px,5vw,70px); bottom: 28px; color: #d8e5da; font-size: 8px; }.auth-community span { color: #f0ce8e; font-weight: 800; }
+.auth-panel { min-height: 100dvh; padding: 35px clamp(30px,6vw,90px); display: grid; place-items: center; overflow-y: auto; }.auth-card { width: min(100%,470px); }.auth-mobile-brand { display: none; }
+.auth-tabs { margin-bottom: 36px; display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }.auth-tabs button { padding: 12px; border: 0; border-bottom: 2px solid transparent; color: #89958e; background: transparent; font-size: 11px; font-weight: 800; }.auth-tabs button.active { color: var(--green); border-bottom-color: var(--green); }
+.auth-heading h2 { margin-top: 6px; font: 700 clamp(28px,3vw,36px)/1.1 'Bricolage Grotesque'; letter-spacing: -1px; }.auth-heading > span { display: block; margin-top: 9px; color: var(--muted); font-size: 11px; line-height: 1.5; }.auth-back { margin-bottom: 24px; padding: 0; border: 0; color: var(--green); background: transparent; font-size: 10px; font-weight: 800; }
+.account-types { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }.account-types button { min-height: 75px; position: relative; padding: 10px; display: grid; grid-template-columns: 35px 1fr; column-gap: 8px; align-items: center; border: 1.5px solid var(--line); border-radius: 11px; color: var(--ink); background: white; text-align: left; }.account-types button.selected { border-color: var(--green); background: var(--green-soft); }.account-types button > span { width: 35px; height: 35px; grid-row: 1 / 3; display: grid; place-items: center; border-radius: 9px; color: var(--green); background: white; }.account-types strong { align-self: end; font-size: 10px; }.account-types small { align-self: start; color: var(--muted); font-size: 7.5px; }.account-types i { width: 17px; height: 17px; position: absolute; top: 7px; right: 7px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--green); }
+.auth-form { margin-top: 23px; display: grid; gap: 14px; }.auth-form > label,.auth-row label { display: grid; gap: 6px; }.auth-form label > span,.auth-row label > span { color: #526359; font-size: 9px; font-weight: 800; }.auth-form label > div,.auth-row label > div { min-height: 44px; padding: 0 11px; display: flex; align-items: center; gap: 9px; border: 1px solid #d7dfd8; border-radius: 10px; color: #87948c; background: #f9faf8; }.auth-form input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 10px; }.auth-form label > div button { padding: 4px; display: grid; place-items: center; border: 0; color: #849087; background: transparent; }.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.auth-options { display: flex; justify-content: space-between; align-items: center; }.auth-options label,.terms { display: flex !important; grid-template-columns: auto 1fr; align-items: center; gap: 7px !important; color: var(--muted); font-size: 9px; }.auth-options input,.terms input { flex: none; width: 14px; height: 14px; accent-color: var(--green); }.auth-options button,.terms button { padding: 0; border: 0; color: var(--green); background: none; font-size: 9px; font-weight: 800; }
+.auth-submit { min-height: 46px; display: flex; justify-content: center; align-items: center; gap: 7px; border: 0; border-radius: 10px; color: white; background: var(--green); box-shadow: 0 7px 18px rgba(35,87,50,.16); font-size: 10px; font-weight: 800; }.auth-submit:hover { background: var(--green-dark); }
+.auth-success { padding: 11px; display: flex; align-items: center; gap: 8px; border-radius: 9px; color: var(--green-dark); background: var(--green-soft); font-size: 9px; font-weight: 700; }.auth-success svg { flex: none; }
+.demo-access { margin-top: 17px; padding: 11px; display: flex; gap: 9px; align-items: center; border-radius: 10px; color: #775b35; background: #f7edda; font-size: 8.5px; }.demo-access svg { flex: none; }.demo-access strong { display: block; font-size: 9px; }
+.auth-help { margin-top: 22px; color: var(--muted); font-size: 9px; text-align: center; }.auth-help button { padding: 0; border: 0; color: var(--green); background: none; font-size: inherit; font-weight: 800; }
+.app-shell { min-height: 100dvh; }
+.sidebar { position: fixed; inset: 0 auto 0 0; z-index: 20; width: 248px; padding: 32px 21px 22px; display: flex; flex-direction: column; border-right: 1px solid var(--line); background: #fbfcf9; }
+.brand { display: flex; align-items: center; gap: 11px; }
+.brand-mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 13px; color: white; background: var(--green); transform: rotate(-4deg); }
+.brand > div { display: grid; grid-template-columns: auto auto; column-gap: 4px; align-items: baseline; }
+.brand strong, .brand b { font: 800 17px/1 'Bricolage Grotesque'; letter-spacing: -.25px; }
+.brand strong { color: var(--green-dark); }
+.brand b { color: var(--earth); }
+.brand small { grid-column: 1 / -1; margin-top: 4px; color: var(--muted); font-size: 8px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.side-nav { margin-top: 49px; display: grid; gap: 6px; }
+.nav-item { width: 100%; min-height: 45px; padding: 0 13px; display: flex; align-items: center; gap: 12px; border: 0; border-radius: 11px; color: #6f7e74; background: transparent; font-size: 12px; font-weight: 700; text-align: left; }
+.nav-item:hover { background: #f0f4ef; }
+.nav-item.active { color: var(--green-dark); background: var(--green-soft); }
+.nav-count { min-width: 21px; height: 21px; margin-left: auto; padding: 0 6px; display: grid; place-items: center; border-radius: 20px; color: white; background: var(--green); font-size: 9px; }
+.pilot-card { margin-top: auto; padding: 18px; border-radius: 16px; color: #31573b; background: #e6efe0; }
+.pilot-card > span { width: 35px; height: 35px; display: grid; place-items: center; margin-bottom: 10px; border-radius: 11px; background: rgba(255,255,255,.75); }
+.pilot-card strong { display: block; font: 700 13px/1.25 'Bricolage Grotesque'; }
+.pilot-card p { margin-top: 6px; color: #6d7f70; font-size: 9.5px; line-height: 1.45; }
+.pilot-card > div { height: 5px; margin-top: 13px; overflow: hidden; border-radius: 10px; background: rgba(47,112,65,.13); }
+.pilot-card > div i { display: block; height: 100%; border-radius: inherit; background: var(--green); }
+.pilot-card small { display: block; margin-top: 6px; color: #67806b; font-size: 8px; }
+.profile-mini { width: 100%; margin-top: 18px; padding: 0; display: flex; align-items: center; gap: 10px; border: 0; color: var(--ink); background: transparent; text-align: left; }
+.avatar { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; color: white; background: #b97852; font-size: 10px; font-weight: 800; }
+.profile-mini > div:nth-child(2) { min-width: 0; flex: 1; }
+.profile-mini strong, .profile-mini span { display: block; }
+.profile-mini strong { font-size: 11px; }
+.profile-mini span { margin-top: 2px; color: var(--muted); font-size: 8px; }
+
+.main { min-height: 100dvh; margin-left: 248px; padding: 39px clamp(28px, 4vw, 62px) 65px; }
+.topbar { max-width: 1180px; margin: 0 auto 28px; display: flex; justify-content: space-between; align-items: center; gap: 22px; }
+.eyebrow { color: #7d8b82; font-size: 9px; font-weight: 800; letter-spacing: .13em; }
+.topbar h1 { margin-top: 5px; font: 700 clamp(27px, 3vw, 36px)/1 'Bricolage Grotesque'; letter-spacing: -1px; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
+.icon-button { width: 41px; height: 41px; position: relative; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: white; }
+.icon-button i { width: 7px; height: 7px; position: absolute; top: 8px; right: 8px; border: 2px solid white; border-radius: 50%; background: #d17249; }
+.reset-button, .text-button { display: flex; align-items: center; gap: 6px; border: 0; color: var(--green); background: transparent; font-size: 10px; font-weight: 800; }
+.primary-button, .hero-button { min-height: 41px; padding: 0 17px; display: inline-flex; justify-content: center; align-items: center; gap: 8px; border: 0; border-radius: 10px; color: white; background: var(--green); box-shadow: 0 5px 16px rgba(38,91,52,.14); font-size: 11px; font-weight: 800; }
+.primary-button:hover, .hero-button:hover { background: var(--green-dark); transform: translateY(-1px); }
+.mobile-header { display: none; }
+
+.hero { max-width: 1180px; min-height: 280px; margin: 0 auto; display: grid; grid-template-columns: 1.05fr .95fr; overflow: hidden; border-radius: 21px; color: white; background: #2f6a42; box-shadow: 0 18px 38px rgba(40,87,51,.13); }
+.hero-copy { z-index: 2; padding: 38px 20px 38px 41px; }
+.hero-label { display: inline-flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 800; letter-spacing: .12em; }
+.hero-copy h2 { margin-top: 15px; font: 700 clamp(30px, 3.6vw, 47px)/1.03 'Bricolage Grotesque'; letter-spacing: -1.5px; }
+.hero-copy h2 em { color: #d9b875; font-style: normal; }
+.hero-copy p { max-width: 445px; margin-top: 14px; color: #dce9df; font-size: 12px; line-height: 1.55; }
+.hero-button { margin-top: 22px; color: var(--green-dark); background: white; box-shadow: none; }
+.hero-button:hover { color: white; }
+.hero-art { position: relative; overflow: hidden; background: linear-gradient(#7aa18a, #bbceb1 64%, #d7d8aa 64%); }
+.sun { width: 51px; height: 51px; position: absolute; top: 30px; right: 54px; border-radius: 50%; background: #ebc378; box-shadow: 0 0 0 11px rgba(235,195,120,.13); }
+.mountain { position: absolute; bottom: 35%; border-left: 180px solid transparent; border-right: 180px solid transparent; border-bottom: 135px solid #78927c; }
+.mountain.one { left: -115px; }
+.mountain.two { right: -165px; bottom: 34%; border-bottom-color: #68846f; }
+.road { position: absolute; left: 30%; bottom: -30px; width: 90px; height: 170px; background: #d4c793; transform: skew(-21deg); }
+.truck-art { position: absolute; left: 40%; bottom: 45px; width: 132px; height: 65px; filter: drop-shadow(0 8px 5px rgba(30,50,30,.16)); }
+.truck-box { width: 83px; height: 50px; display: grid; place-items: center; border-radius: 7px 4px 2px 2px; color: white; background: #ce7547; }
+.truck-cab { width: 45px; height: 38px; position: absolute; bottom: 0; right: 6px; border-radius: 4px 12px 3px 2px; background: #e2a267; }
+.truck-art i { width: 20px; height: 20px; position: absolute; bottom: -7px; border: 5px solid #26382d; border-radius: 50%; background: #b8c5b9; }
+.truck-art i:nth-of-type(1) { left: 17px; }.truck-art i:nth-of-type(2) { right: 13px; }
+.tree { position: absolute; color: #315c3b; font-size: 42px; line-height: 1; }
+.tree.t1 { left: 10%; bottom: 29px; }.tree.t2 { left: 23%; bottom: 20px; font-size: 31px; }.tree.t3 { right: 7%; bottom: 32px; font-size: 50px; }
+
+.stats-grid { max-width: 1180px; margin: 17px auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.stat-card { padding: 19px; display: flex; align-items: center; gap: 14px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+.stat-icon { width: 43px; height: 43px; flex: none; display: grid; place-items: center; border-radius: 12px; }
+.stat-icon.green { color: #39764a; background: #e3efe1; }.stat-icon.ochre { color: #af6b3d; background: #f4e7d8; }.stat-icon.teal { color: #32827b; background: #def0ed; }
+.stat-card p { color: var(--muted); font-size: 9px; }
+.stat-card strong { display: block; margin-top: 2px; font: 700 22px 'Bricolage Grotesque'; }
+.stat-card strong small { font: 700 10px 'Nunito Sans'; }
+.stat-card div > span { display: block; margin-top: 2px; color: #89948d; font-size: 8px; }
+.stat-card div > .trend { color: #3d8151; font-weight: 700; }
+.dashboard-grid { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 1.25fr .75fr; gap: 16px; }
+.panel { border: 1px solid var(--line); border-radius: 17px; background: white; }
+.next-pickup, .quick-request, .recent { padding: 21px 23px; }
+.panel-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+.panel-heading h3 { margin-top: 3px; font: 700 17px 'Bricolage Grotesque'; }
+.panel-heading p:not(.eyebrow) { margin-top: 3px; color: var(--muted); font-size: 9px; }
+.status { width: fit-content; padding: 5px 9px; display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-size: 8px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+.status.assigned, .status.asignado { color: #9a5e31; background: #f4e5d7; }
+.status.solicitado { color: #477693; background: #e2eef5; }
+.status.recogido { color: #39756d; background: #dff0ed; }
+.status.entregado { color: #397248; background: #e2eee0; }
+.pickup-body { margin-top: 16px; display: grid; grid-template-columns: 65px 1fr 1fr; gap: 18px; align-items: center; }
+.date-block { height: 74px; display: grid; justify-items: center; align-content: center; border-radius: 12px; color: var(--green-dark); background: var(--green-soft); }
+.date-block span, .date-block small { font-size: 8px; font-weight: 800; }.date-block strong { font: 700 27px/1 'Bricolage Grotesque'; }
+.pickup-details { display: grid; gap: 10px; }
+.pickup-details > div { display: flex; gap: 8px; align-items: center; }
+.pickup-details svg { color: var(--green); }
+.pickup-details strong, .pickup-details small, .collector small, .collector strong { display: block; }
+.pickup-details strong, .collector strong { font-size: 10px; }.pickup-details small, .collector small { margin-top: 1px; color: var(--muted); font-size: 8px; }
+.collector { padding-left: 17px; display: flex; align-items: center; gap: 9px; border-left: 1px solid var(--line); }
+.avatar.rosa { background: #7c967a; }
+.collector button { margin-top: 3px; padding: 0; border: 0; color: var(--green); background: none; font-size: 8px; font-weight: 800; }
+.tracking { margin-top: 18px; display: grid; grid-template-columns: repeat(4, 1fr); }
+.tracking div { position: relative; display: grid; justify-items: center; gap: 5px; color: #9aa39d; font-size: 7.5px; font-weight: 700; }
+.tracking div::before { content: ""; width: 100%; height: 2px; position: absolute; top: 9px; right: 50%; background: #dfe5e0; }
+.tracking div:first-child::before { display: none; }
+.tracking i { width: 19px; height: 19px; z-index: 1; display: grid; place-items: center; border-radius: 50%; color: #89978f; background: #edf1ee; font-style: normal; font-size: 8px; }
+.tracking div.done { color: var(--green); }.tracking div.done::before, .tracking div.done i { color: white; background: var(--green); }
+.material-grid { margin-top: 15px; display: grid; gap: 8px; }
+.material-grid button { min-height: 45px; padding: 0 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #e6eae6; border-radius: 10px; color: var(--ink); background: #fbfcfa; text-align: left; }
+.material-grid button:hover { border-color: var(--mat); transform: translateX(2px); }
+.material-grid button > span { width: 31px; height: 31px; display: grid; place-items: center; border-radius: 9px; color: var(--mat); background: var(--soft); }
+.material-grid button strong { flex: 1; font-size: 10px; }
+.material-grid button > svg { color: #97a29b; }
+.recent { max-width: 1180px; margin: 16px auto 0; }
+.request-list { margin-top: 12px; }
+.request-row { min-height: 63px; display: grid; grid-template-columns: 39px 1.1fr 1.2fr auto 25px; align-items: center; gap: 12px; border-top: 1px solid #edf0ed; }
+.request-row:first-child { border-top: 0; }
+.material-icon { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 10px; color: var(--mat); background: var(--soft); }
+.request-material strong, .request-material span, .request-meta strong, .request-meta small { display: block; }
+.request-material strong { font-size: 10px; }.request-material span { margin-top: 2px; color: var(--muted); font-size: 8px; }
+.request-meta { display: flex; align-items: center; gap: 7px; color: #6d7e73; font-size: 9px; }
+.request-meta small { margin-top: 2px; color: #98a19b; font-size: 7.5px; }
+.row-action { padding: 0; border: 0; color: #89968e; background: none; }
+
+.page-section { max-width: 1180px; margin: 0 auto; }
+.section-intro { margin-bottom: 25px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+.section-intro h2 { margin-top: 6px; font: 700 clamp(27px,3vw,36px) 'Bricolage Grotesque'; letter-spacing: -1px; }
+.section-intro > div > p:last-child { margin-top: 6px; color: var(--muted); font-size: 11px; }
+.orders-panel { padding: 10px 23px; }
+.orders-panel .request-list { margin: 0; }
+.orders-panel .request-row { grid-template-columns: 39px 1fr 1fr .9fr auto 25px; min-height: 74px; }
+.impact-hero { min-height: 210px; padding: 30px 42px; display: flex; align-items: center; justify-content: space-between; overflow: hidden; border-radius: 20px; color: white; background: linear-gradient(120deg,#285f3b,#4f8660); }
+.impact-hero > div:first-child span { color: #cfe0d2; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+.impact-hero > div:first-child strong { display: block; margin-top: 5px; font: 700 43px 'Bricolage Grotesque'; }
+.impact-hero p { color: #dbe8dd; font-size: 11px; }
+.impact-ring { width: 150px; height: 150px; display: grid; place-content: center; justify-items: center; border: 10px solid rgba(255,255,255,.2); border-top-color: #e2bd79; border-radius: 50%; background: rgba(255,255,255,.06); }
+.impact-ring span { color: #e2bd79; }.impact-ring strong { margin-top: 4px; font: 700 20px 'Bricolage Grotesque'; }.impact-ring small { font-size: 8px; }
+.impact-grid { margin-top: 16px; display: grid; grid-template-columns: 1.35fr .65fr; gap: 16px; }
+.material-chart { padding: 22px; }
+.bar-row { margin-top: 18px; display: grid; grid-template-columns: 90px 1fr 52px; align-items: center; gap: 10px; font-size: 9px; }
+.bar-row > div { height: 9px; overflow: hidden; border-radius: 10px; background: #edf1ed; }.bar-row i { display: block; height: 100%; border-radius: inherit; }
+.bar-row strong { text-align: right; font-size: 9px; }
+.achievement { padding: 25px; text-align: center; }
+.medal { width: 62px; height: 62px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 50%; color: #9a6b29; background: #f5e6c6; }
+.achievement h3 { margin-top: 5px; font: 700 19px 'Bricolage Grotesque'; }.achievement > p:not(.eyebrow) { margin-top: 8px; color: var(--muted); font-size: 9px; line-height: 1.55; }
+.achievement button { margin-top: 17px; border: 0; color: var(--green); background: none; font-size: 9px; font-weight: 800; }
+.lesson-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+.lesson-card { overflow: hidden; border: 1px solid var(--line); border-radius: 17px; background: white; }
+.lesson-art { height: 135px; position: relative; display: grid; place-items: center; color: white; background: #78a27d; }
+.lesson-art span { position: absolute; right: 16px; bottom: 7px; color: rgba(255,255,255,.35); font: 800 42px 'Bricolage Grotesque'; }
+.art-1 { background: #b78558; }.art-2 { background: #679086; }
+.lesson-card > div:last-child { padding: 18px; }.lesson-card p { color: var(--green); font-size: 8px; font-weight: 800; letter-spacing: .09em; }.lesson-card h3 { margin-top: 6px; font: 700 17px 'Bricolage Grotesque'; }.lesson-card div > span { display: block; margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.5; }
+.lesson-card button { margin-top: 15px; padding: 0; display: flex; align-items: center; gap: 4px; border: 0; color: var(--green); background: none; font-size: 9px; font-weight: 800; }
+.live-badge { padding: 6px 10px; display: flex; align-items: center; gap: 6px; border-radius: 20px; color: var(--green); background: var(--green-soft); font-size: 8px; font-weight: 800; }.live-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(47,112,65,.12); }
+.role-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 15px; }.role-stat { padding: 19px; display: flex; align-items: center; gap: 13px; }.role-stat > span { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; color: var(--green); background: var(--green-soft); }.role-stat p { color: var(--muted); font-size: 9px; }.role-stat strong,.role-stat small { display: block; }.role-stat strong { margin-top: 2px; font: 700 22px 'Bricolage Grotesque'; }.role-stat small { color: #7c8a81; font-size: 8px; }
+.role-grid { margin-top: 16px; display: grid; grid-template-columns: 1.4fr .6fr; gap: 16px; }.route-panel,.availability-card,.role-table,.lot-card,.zone-panel,.network-card { padding: 22px; }
+.route-stop { margin-top: 17px; padding: 13px; display: flex; align-items: center; gap: 11px; border-radius: 12px; background: var(--green-soft); }.route-number { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; color: white; background: var(--green); font: 700 13px 'Bricolage Grotesque'; }.route-stop div { flex: 1; }.route-stop strong,.route-stop small { display: block; }.route-stop strong { font-size: 10px; }.route-stop small { margin-top: 3px; color: var(--muted); font-size: 8px; }.route-stop button { padding: 8px 10px; display: flex; align-items: center; gap: 5px; border: 0; border-radius: 8px; color: white; background: var(--green); font-size: 8px; font-weight: 800; }
+.route-list { margin-top: 13px; display: grid; gap: 6px; }.route-list div { min-height: 34px; display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 9px; }.route-list i { width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; background: #edf1ed; font-style: normal; font-size: 8px; }.route-list .complete i { color: white; background: var(--green); }.route-list .current { color: var(--green-dark); font-weight: 800; }
+.availability-card { display: grid; align-content: center; justify-items: center; text-align: center; }.availability-card > span { width: 53px; height: 53px; display: grid; place-items: center; border-radius: 50%; color: var(--earth); background: #f5e6d7; }.availability-card h3 { margin-top: 13px; font: 700 17px 'Bricolage Grotesque'; }.availability-card p { margin-top: 7px; color: var(--muted); font-size: 9px; line-height: 1.5; }.availability-card button,.lot-card button { margin-top: 14px; border: 0; color: var(--green); background: none; font-size: 9px; font-weight: 800; }
+.delivery-row { min-height: 57px; display: grid; grid-template-columns: 37px 1fr 50px 45px 55px; align-items: center; gap: 9px; border-top: 1px solid #edf0ed; font-size: 9px; }.delivery-row:first-of-type { margin-top: 12px; }.delivery-row strong,.delivery-row small { display: block; }.delivery-row small { margin-top: 2px; color: var(--muted); font-size: 8px; }.delivery-row > span:not(.material-icon) { color: var(--muted); }.delivery-row button { padding: 6px; border: 0; border-radius: 7px; color: var(--green); background: var(--green-soft); font-size: 8px; font-weight: 800; }
+.lot-card { display: grid; align-content: center; justify-items: center; text-align: center; }.lot-card > span { width: 58px; height: 58px; margin: 12px 0; display: grid; place-items: center; border-radius: 15px; color: #a4663c; background: #f4e5d7; }.lot-card h3 { font: 700 16px 'Bricolage Grotesque'; }.lot-card > strong { margin-top: 5px; font: 700 25px 'Bricolage Grotesque'; }.lot-card > p:not(.eyebrow) { color: var(--muted); font-size: 8px; }.lot-card > div { width: 100%; height: 6px; margin-top: 9px; overflow: hidden; border-radius: 10px; background: #edf0ed; }.lot-card > div i { display: block; height: 100%; border-radius: inherit; background: var(--earth); }
+.role-grid.municipality { grid-template-columns: 1.25fr .75fr; }.chart-key { display: flex; gap: 5px; align-items: center; color: var(--muted); font-size: 8px; }.chart-key i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }.zone-row { margin-top: 17px; display: grid; grid-template-columns: 135px 1fr 35px; align-items: center; gap: 9px; font-size: 8.5px; }.zone-row > div { height: 8px; overflow: hidden; border-radius: 10px; background: #edf1ed; }.zone-row > div i { display: block; height: 100%; border-radius: inherit; background: var(--green); }.zone-row strong { text-align: right; }
+.network-card { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }.network-card .panel-heading { grid-column: 1 / -1; }.network-card > div:not(.panel-heading) { padding: 11px; border-radius: 10px; background: #f5f8f5; }.network-card > div > span { color: var(--green); }.network-card > div > strong,.network-card > div > small { display: block; }.network-card > div > strong { margin-top: 4px; font: 700 18px 'Bricolage Grotesque'; }.network-card > div > small { color: var(--muted); font-size: 8px; }
+.role-activity { margin-top: 16px; padding: 21px 23px; }
+
+/* Escala tipográfica accesible: el prototipo original usaba textos de 8–10 px. */
+.eyebrow { font-size: 11px; }
+.brand small { font-size: 10px; }
+.nav-item { font-size: 14px; }
+.nav-count { font-size: 11px; }
+.pilot-card strong { font-size: 15px; }
+.pilot-card p { font-size: 12px; }
+.pilot-card small { font-size: 10px; }
+.profile-mini strong { font-size: 13px; }
+.profile-mini span { font-size: 10px; }
+.reset-button, .text-button, .primary-button, .hero-button { font-size: 13px; }
+.hero-label { font-size: 11px; }
+.hero-copy p { font-size: 14px; }
+.stat-card p, .panel-heading p:not(.eyebrow), .section-intro > div > p:last-child { font-size: 12px; }
+.stat-card div > span { font-size: 10px; }
+.stat-card strong small { font-size: 12px; }
+.status { font-size: 10px; }
+.date-block span, .date-block small { font-size: 10px; }
+.pickup-details strong, .collector strong { font-size: 12px; }
+.pickup-details small, .collector small { font-size: 10px; }
+.collector button { font-size: 10px; }
+.tracking div { font-size: 9px; }
+.material-grid button strong { font-size: 12px; }
+.request-material strong { font-size: 12px; }
+.request-material span { font-size: 10px; }
+.request-meta { font-size: 11px; }
+.request-meta small { font-size: 9px; }
+.achievement > p:not(.eyebrow), .bar-row, .lesson-card div > span { font-size: 11px; }
+.achievement button, .lesson-card p, .lesson-card button { font-size: 10px; }
+.auth-story-top > span, .auth-community { font-size: 10px; }
+.auth-kicker { font-size: 11px; }
+.auth-story-copy > p { font-size: 15px; }
+.auth-benefits strong { font-size: 13px; }
+.auth-benefits small { font-size: 11px; }
+.auth-tabs button { font-size: 13px; }
+.auth-heading > span { font-size: 13px; }
+.auth-back { font-size: 12px; }
+.account-types strong { font-size: 12px; }
+.account-types small { font-size: 10px; }
+.auth-form label > span, .auth-row label > span { font-size: 11px; }
+.auth-form input { font-size: 13px; }
+.auth-options label, .terms, .auth-options button, .terms button { font-size: 11px; }
+.auth-submit { font-size: 13px; }
+.auth-success, .auth-help { font-size: 11px; }
+.demo-access { font-size: 10px; }
+.demo-access strong { font-size: 11px; }
+.live-badge { font-size: 10px; }
+.role-stat p { font-size: 11px; }
+.role-stat small { font-size: 10px; }
+.route-stop strong { font-size: 12px; }
+.route-stop small, .route-stop button { font-size: 10px; }
+.route-list div { font-size: 11px; }
+.availability-card p, .availability-card button, .lot-card button { font-size: 11px; }
+.delivery-row { font-size: 11px; }
+.delivery-row small, .delivery-row button { font-size: 10px; }
+.lot-card > p:not(.eyebrow), .chart-key, .zone-row, .network-card > div > small { font-size: 10px; }
+
+.bottom-nav { display: none; }
+.modal-backdrop { position: fixed; inset: 0; z-index: 50; padding: 18px; display: grid; place-items: center; background: rgba(20,43,27,.48); backdrop-filter: blur(4px); }
+.modal { width: min(100%,510px); padding: 25px; border-radius: 20px; background: white; box-shadow: 0 25px 75px rgba(20,50,29,.28); }
+.modal-head { display: flex; justify-content: space-between; align-items: flex-start; }
+.modal-head h2 { margin-top: 5px; font: 700 23px 'Bricolage Grotesque'; }
+.modal-progress { margin: 18px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.modal-progress i { height: 4px; border-radius: 5px; background: #e3e9e4; }.modal-progress i.active { background: var(--green); }
+.select-materials { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.select-materials button { min-height: 61px; position: relative; padding: 8px 10px; display: flex; align-items: center; gap: 9px; border: 1.5px solid var(--line); border-radius: 11px; color: var(--ink); background: #fbfcfa; font-size: 10px; font-weight: 800; }
+.select-materials button.selected { border-color: var(--mat); background: var(--soft); }
+.select-materials button > span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; color: var(--mat); background: white; }
+.select-materials button > i { width: 18px; height: 18px; margin-left: auto; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--mat); }
+.amount-label { display: block; margin-top: 18px; color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
+.amount-control { margin: 8px 0 20px; display: grid; grid-template-columns: 44px 1fr 44px; gap: 8px; }
+.amount-control button { border: 1px solid var(--line); border-radius: 10px; color: var(--green); background: #f7f9f7; font-size: 21px; font-weight: 700; }
+.amount-control div { min-height: 47px; display: flex; justify-content: center; align-items: baseline; gap: 5px; border: 1px solid var(--line); border-radius: 10px; }.amount-control strong { font: 700 20px 'Bricolage Grotesque'; }.amount-control span { color: var(--muted); font-size: 10px; }
+.primary-button.full { width: 100%; }
+.selected-summary { padding: 12px; display: flex; align-items: center; gap: 10px; border-radius: 11px; background: var(--green-soft); }
+.selected-summary > span { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 10px; color: var(--green); background: white; }
+.selected-summary div { flex: 1; }.selected-summary small, .selected-summary strong { display: block; }.selected-summary small { color: var(--muted); font-size: 7px; }.selected-summary strong { margin-top: 2px; font-size: 10px; }
+.selected-summary button { border: 0; color: var(--green); background: none; font-size: 8px; font-weight: 800; }
+.day-picker { margin-top: 15px; display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+.day-picker button { min-height: 67px; display: grid; justify-items: center; align-content: center; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: white; }
+.day-picker button.selected { border-color: var(--green); color: var(--green); background: var(--green-soft); }.day-picker span,.day-picker small { font-size: 8px; }.day-picker strong { font: 700 18px 'Bricolage Grotesque'; }
+.slot-picker { margin-top: 8px; display: grid; gap: 7px; }
+.slot-picker button { min-height: 40px; padding: 0 11px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink); background: white; font-size: 9px; font-weight: 700; }
+.slot-picker button.selected { border-color: var(--green); background: var(--green-soft); }.slot-picker button span { margin-left: auto; color: var(--green); font-size: 8px; }
+.modal-actions { margin-top: 18px; display: grid; grid-template-columns: .6fr 1.4fr; gap: 8px; }
+.back-button { border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: white; font-size: 10px; font-weight: 800; }
+.toast { position: fixed; left: 50%; bottom: 25px; z-index: 70; padding: 12px 18px; display: flex; align-items: center; gap: 8px; border-radius: 11px; color: white; background: #203e29; box-shadow: 0 12px 30px rgba(20,50,29,.25); font-size: 10px; font-weight: 700; transform: translateX(-50%); animation: toast-in .25s ease-out; }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%,8px); } }
+
+@media (max-width: 1030px) {
+  .auth-page { grid-template-columns: .85fr 1.15fr; }.auth-story { padding-inline: 32px; }.auth-benefits { display: none; }.auth-community { left: 32px; }
+  .sidebar { width: 210px; padding-inline: 16px; }.main { margin-left: 210px; padding-inline: 24px; }
+  .hero { grid-template-columns: 1.15fr .85fr; }.dashboard-grid { grid-template-columns: 1fr; }.quick-request .material-grid { grid-template-columns: 1fr 1fr; }
+  .orders-panel .request-row { grid-template-columns: 39px 1fr 1fr auto 25px; }.orders-panel .request-meta.zone { display: none; }
+  .role-grid,.role-grid.municipality { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .auth-page { display: block; background: #f7f9f6; }.auth-story { display: none; }.auth-panel { padding: 28px 20px 45px; display: block; }.auth-mobile-brand { display: block; margin-bottom: 42px; }.auth-card { margin: 0 auto; }.auth-tabs { margin-bottom: 30px; }
+  .sidebar, .top-actions { display: none; }.main { margin-left: 0; padding: 0 14px 90px; }
+  .mobile-header { height: 71px; display: flex; align-items: center; justify-content: space-between; }.mobile-header .brand-mark { width: 36px; height: 36px; }.mobile-header .brand strong,.mobile-header .brand b { font-size: 15px; }
+  .topbar { margin: 12px 2px 21px; }.topbar h1 { font-size: 28px; }
+  .hero { min-height: 430px; grid-template-columns: 1fr; }.hero-copy { padding: 28px 24px 20px; }.hero-copy h2 { font-size: 35px; }.hero-art { min-height: 175px; }.truck-art { bottom: 30px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 9px; }.stat-card { padding: 14px 17px; }
+  .pickup-body { grid-template-columns: 60px 1fr; }.collector { grid-column: 1 / -1; padding: 12px 0 0; border: 0; border-top: 1px solid var(--line); }
+  .quick-request .material-grid { grid-template-columns: 1fr; }
+  .recent { padding-inline: 16px; }.request-row { grid-template-columns: 37px 1fr auto 20px; padding: 8px 0; }.request-meta { display: none; }
+  .section-intro { align-items: flex-start; }.section-intro .primary-button { padding-inline: 12px; font-size: 0; }.section-intro .primary-button svg { margin: 0; }
+  .orders-panel { padding-inline: 15px; }.orders-panel .request-row { grid-template-columns: 37px 1fr auto 20px; }.orders-panel .request-meta { display: none; }
+  .impact-hero { padding: 25px; }.impact-hero > div:first-child strong { font-size: 32px; }.impact-ring { width: 115px; height: 115px; }
+  .impact-grid,.lesson-grid { grid-template-columns: 1fr; }.lesson-card { display: grid; grid-template-columns: .8fr 1.2fr; }.lesson-art { height: 100%; min-height: 175px; }
+  .role-stats { grid-template-columns: 1fr; gap: 9px; }.role-stat { padding: 14px 17px; }.role-grid { gap: 10px; }.route-panel,.availability-card,.role-table,.lot-card,.zone-panel,.network-card { padding: 17px; }.role-activity { padding-inline: 15px; }
+  .bottom-nav { height: calc(66px + env(safe-area-inset-bottom)); position: fixed; inset: auto 0 0; z-index: 30; padding: 6px 8px env(safe-area-inset-bottom); display: grid; grid-template-columns: repeat(4,1fr); border-top: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(12px); }
+  .bottom-nav button { display: grid; justify-items: center; align-content: center; gap: 3px; border: 0; color: #859188; background: transparent; font-size: 10px; font-weight: 700; }.bottom-nav button.active { color: var(--green); }.bottom-nav button.active svg { width: 30px; height: 30px; padding: 5px; border-radius: 9px; background: var(--green-soft); box-sizing: border-box; }
+  .toast { width: calc(100% - 28px); bottom: 79px; justify-content: center; }
+}
+
+@media (max-width: 430px) {
+  .auth-row { grid-template-columns: 1fr; }.account-types { grid-template-columns: 1fr; }.auth-panel { padding-inline: 16px; }.auth-mobile-brand { margin-bottom: 34px; }
+  .hero-copy h2 { font-size: 31px; }.next-pickup,.quick-request,.recent { padding: 18px 16px; }.tracking div { font-size: 8px; }
+  .impact-hero { align-items: flex-start; }.impact-ring { width: 96px; height: 96px; border-width: 7px; }.impact-ring span { display: none; }.impact-ring strong { font-size: 16px; }
+  .lesson-card { grid-template-columns: 1fr; }.lesson-art { min-height: 120px; }
+  .modal { padding: 20px; }.select-materials { grid-template-columns: 1fr; max-height: 245px; overflow-y: auto; }.modal-head h2 { font-size: 21px; }
+  .route-stop { align-items: flex-start; flex-wrap: wrap; }.route-stop button { width: 100%; justify-content: center; }.delivery-row { grid-template-columns: 37px 1fr auto; }.delivery-row > span:not(.material-icon),.delivery-row > b { display: none; }.zone-row { grid-template-columns: 105px 1fr 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

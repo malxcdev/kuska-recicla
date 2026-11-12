@@ -1,0 +1,10 @@
+{
+  "description": "Organiza recordatorios de medicamentos, registra las dosis tomadas y avisa cuándo es momento de renovar las recetas.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
