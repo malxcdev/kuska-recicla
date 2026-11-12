@@ -5,11 +5,11 @@ import { ImpactView } from "@/components/ImpactView";
 import { RequestActionButton } from "@/components/RequestActionButton";
 import { RequestTable } from "@/components/RequestTable";
 import { EmptyState, MaterialIcon, PageIntro, StatCard } from "@/components/ui";
-import { MATERIALS, ZONES } from "@/data/catalog";
+import { MATERIALS, slotLabel, ZONES } from "@/data/catalog";
 import { formatRelativeDay, toISODate } from "@/data/dates";
 import { byDateAsc, byDateDesc, requestsForSession } from "@/data/requestActions";
 import { earningsOf, formatKg, formatSoles, summarizeImpact } from "@/data/stats";
-import { useAuthenticated, useRequestFlow, useRequests, useToast } from "@/state/contexts";
+import { useAuthenticated, useRequestFlow, useRequests, useSchedule } from "@/state/contexts";
 import type { PickupRequest } from "@/types";
 
 function useRecicladorData() {
@@ -68,8 +68,11 @@ function NextStop({ stop }: { stop: PickupRequest }) {
 }
 
 export function RecicladorInicio() {
-  const { actor, todayStops, deliveredThisMonth, mine } = useRecicladorData();
-  const announce = useToast();
+  const { actor, today, todayStops, deliveredThisMonth, mine } = useRecicladorData();
+  const { scheduleFor, availability } = useSchedule();
+  const todaySlots = (availability.find((a) => a.collectorId === actor.id)?.weekly[today.getDay()] ?? [])
+    .map((slotId) => scheduleFor(actor.zone).slots.find((s) => s.id === slotId))
+    .filter((slot) => slot !== undefined);
   const next = todayStops.find((r) => !isDone(r));
   const zonesToday = new Set(todayStops.map((r) => r.zone)).size;
 
@@ -91,8 +94,8 @@ export function RecicladorInicio() {
         <article className="panel availability-card">
           <span><Icon name="clock" size={25} /></span>
           <h3>Tu disponibilidad</h3>
-          <p>Hoy estás disponible hasta las 16:00 en la {ZONES[actor.zone].name}.</p>
-          <button type="button" onClick={() => announce("La edición de horarios llegará con la conexión a la base de datos.")}>Editar horario</button>
+          <p>{todaySlots.length > 0 ? `Hoy trabajas ${todaySlots.map(slotLabel).join(", ")} en la ${ZONES[actor.zone].name}.` : `Hoy no tienes franjas activas en la ${ZONES[actor.zone].name}.`}</p>
+          <Link className="text-button mt-3" to="/disponibilidad">Editar disponibilidad</Link>
         </article>
       </div>
       <article className="panel role-activity">

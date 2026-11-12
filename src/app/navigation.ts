@@ -44,6 +44,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
       { label: "Inicio", icon: "home", to: "inicio" },
       { label: "Rutas", icon: "map", to: "rutas" },
       { label: "Recojos", icon: "truck", to: "recojos" },
+      { label: "Disponibilidad", icon: "calendar", to: "disponibilidad" },
       { label: "Mi impacto", icon: "chart", to: "impacto" },
       { label: "Aprende", icon: "book", to: "aprende" },
     ],
@@ -83,6 +84,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     nav: [
       { label: "Inicio", icon: "home", to: "inicio" },
       { label: "Operación", icon: "map", to: "operacion" },
+      { label: "Calendario", icon: "calendar", to: "calendario" },
       { label: "Indicadores", icon: "chart", to: "indicadores" },
       { label: "Actores", icon: "user", to: "actores" },
       { label: "Perfil", icon: "user", to: "perfil" },
@@ -90,7 +92,7 @@ export const ROLE_CONFIG: Record<Role, RoleConfig> = {
     mobileNav: [
       { label: "Inicio", icon: "home", to: "inicio" },
       { label: "Operación", icon: "map", to: "operacion" },
-      { label: "Indicadores", icon: "chart", to: "indicadores" },
+      { label: "Calendario", icon: "calendar", to: "calendario" },
       { label: "Actores", icon: "user", to: "actores" },
       { label: "Perfil", icon: "user", to: "perfil" },
     ],

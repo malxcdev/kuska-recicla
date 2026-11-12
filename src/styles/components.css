@@ -90,7 +90,7 @@
   .avatar.rosa { background: #64805f; }
 
   /* Ventanas modales */
-  .modal-backdrop { position: fixed; inset: 0; z-index: 50; padding: 18px; display: grid; place-items: center; overflow-y: auto; background: rgba(20, 43, 27, .48); backdrop-filter: blur(4px); }
+  .modal-backdrop { position: fixed; inset: 0; z-index: 50; padding: 18px; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; overflow-y: auto; background: rgba(20, 43, 27, .48); backdrop-filter: blur(4px); }
   .modal { width: min(100%, 520px); padding: 25px; border-radius: 20px; background: white; box-shadow: 0 25px 75px rgba(20, 50, 29, .28); animation: modal-in .18s ease-out; }
   .modal:focus { outline: none; }
   @keyframes modal-in { from { opacity: 0; transform: translateY(8px); } }
@@ -130,11 +130,20 @@
   .selected-summary strong { margin-top: 2px; font-size: 14px; }
   .selected-summary button { color: var(--color-green); background: none; font-size: 13px; font-weight: 800; }
 
-  .day-picker { margin-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .day-picker button { min-height: 70px; display: grid; justify-items: center; align-content: center; border: 1px solid var(--color-line); border-radius: 10px; color: var(--color-ink); background: white; }
-  .day-picker button.selected { border-color: var(--color-green); color: var(--color-green-dark); background: var(--color-green-soft); }
-  .day-picker span, .day-picker small { font-size: 12px; font-weight: 700; }
-  .day-picker strong { font: 700 19px/1.2 var(--font-display); }
+  .day-strip { margin-top: 8px; padding-bottom: 6px; display: grid; grid-auto-flow: column; grid-auto-columns: 66px; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; }
+  .day-chip { min-height: 80px; display: grid; justify-items: center; align-content: center; gap: 1px; border: 1px solid var(--color-line); border-radius: 10px; color: var(--color-ink); background: white; scroll-snap-align: start; }
+  .day-chip span, .day-chip small { font-size: 12px; font-weight: 700; }
+  .day-chip strong { font: 700 19px/1.2 var(--font-display); }
+  .day-chip.selected { border-color: var(--color-green); color: var(--color-green-dark); background: var(--color-green-soft); }
+  .day-chip:disabled { color: #8f9a93; background: #f5f7f5; }
+  .level-dot { width: 8px; height: 8px; margin-top: 3px; display: inline-block; border-radius: 50%; }
+  .level-dot.open { background: var(--color-green); }
+  .level-dot.low { background: #d39a3a; }
+  .level-dot.full { background: var(--color-danger); }
+  .level-dot.closed { background: #c4ccc6; }
+  .level-legend { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 12px; color: var(--color-muted); font-size: 12px; }
+  .level-legend li { display: flex; align-items: center; gap: 5px; }
+  .level-legend .level-dot { margin: 0; }
 
   .slot-picker { margin-top: 8px; display: grid; gap: 7px; }
   .slot-picker button { min-height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 8px; border: 1px solid var(--color-line); border-radius: 9px; color: var(--color-ink); background: white; font-size: 14px; font-weight: 700; }
