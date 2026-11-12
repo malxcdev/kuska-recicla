@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultZoneSchedule } from "./catalog";
-import { dayLevel, getAvailability, getDayAvailability, NO_COLLECTORS, NO_SERVICE, pickCollector, type ScheduleContext } from "./availability";
+import { dayLevel, getAvailability, getDayAvailability, NO_COLLECTORS, NO_SERVICE, pickCollector, remainingOf, type ScheduleContext } from "./availability";
 import type { PickupRequest } from "@/types";
 
 // 2026-11-15 domingo · 16 lunes · 17 martes · 20 viernes
@@ -56,6 +56,21 @@ describe("getDayAvailability", () => {
     const bothOff = ctx({ timeOff: [{ id: "t1", collectorId: "rec-rosa", date: MONDAY }, { id: "t2", collectorId: "rec-mario", date: MONDAY }] });
     expect(getDayAvailability(MONDAY, bothOff)).toMatchObject({ open: false, reason: NO_COLLECTORS });
   });
+
+  it("cierra por un cierre de la propia zona", () => {
+    expect(getDayAvailability(MONDAY, ctx({ closures: [{ id: "c3", date: MONDAY, zone: "A", reason: "Obras" }] }))).toMatchObject({ open: false, reason: "Obras", slots: [] });
+  });
+
+  it("cuenta la carga del reciclador en otras zonas, pero no como reserva de esta", () => {
+    // rosa tiene un recojo en la zona B a la misma hora: le queda 1 de 2; mario sigue con 2
+    const slot = slotOf(MONDAY, "10-12", ctx({ requests: [req({ zone: "B" })] }));
+    expect(slot).toMatchObject({ remaining: 3, booked: 0 });
+  });
+
+  it("un pedido sin reciclador no cuenta como reservado ni ocupa cupo", () => {
+    const slot = slotOf(MONDAY, "10-12", ctx({ requests: [req({ collectorId: null, status: "solicitado" })] }));
+    expect(slot).toMatchObject({ booked: 0, remaining: 4 });
+  });
 });
 
 describe("getAvailability", () => {
@@ -77,16 +92,31 @@ describe("dayLevel", () => {
     const full = ctx({ requests: [...almostFull.requests, req({ id: "f", slotId: "08-10" })] });
     expect(dayLevel(getDayAvailability(MONDAY, full))).toBe("full");
   });
+
+  it("2 cupos libres es 'low' y 3 es 'open'", () => {
+    // capacidad total el lunes: 2 (08-10 rosa) + 4 (10-12 rosa+mario) = 6
+    const three = ctx({ requests: [req({ id: "a" }), req({ id: "b" }), req({ id: "c", collectorId: "rec-mario" })] });
+    expect(remainingOf(getDayAvailability(MONDAY, three))).toBe(3);
+    expect(dayLevel(getDayAvailability(MONDAY, three))).toBe("open");
+    const two = ctx({ requests: [...three.requests, req({ id: "d", collectorId: "rec-mario" })] });
+    expect(remainingOf(getDayAvailability(MONDAY, two))).toBe(2);
+    expect(dayLevel(getDayAvailability(MONDAY, two))).toBe("low");
+  });
 });
 
 describe("pickCollector", () => {
   it("elige al de menor carga en la franja", () => {
-    const c = ctx({ requests: [req({})] });
-    expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-mario");
+    const c = ctx({ requests: [req({ collectorId: "rec-mario" })] });
+    expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-rosa");
   });
 
   it("desempata por la carga del día", () => {
-    const c = ctx({ requests: [req({ slotId: "08-10" })] });
+    const c = ctx({ requests: [req({ collectorId: "rec-mario", slotId: "14-16", zone: "B" })] });
+    expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-rosa");
+  });
+
+  it("en empate total desempata por id", () => {
+    const c = ctx();
     expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-mario");
   });
 

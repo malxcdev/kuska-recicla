@@ -63,7 +63,7 @@ interface CollectorTimeOff {           // lo edita el reciclador
 - `pickCollector(dayAvailability, slotId, requests)` elige al reciclador disponible con menos recojos en esa franja. Si empatan, al que tenga menos recojos ese día; si siguen empatados, por id. Devuelve `null` si no hay cupo.
 - `releaseRequest(request, ...)` reasigna con `pickCollector`, excluyendo al reciclador que libera. Si no hay nadie, el pedido vuelve a `solicitado` con `collectorId: null`.
 
-Solo cuentan para la capacidad los pedidos no cancelados de esa zona, fecha y franja que estén asignados a un reciclador.
+La carga de cada reciclador se cuenta en todas las zonas (una persona no puede estar en dos lugares a la vez). `booked` son las reservas de la zona; la ocupación que se muestra junto al nivel del día es `capacity - remaining`.
 
 ## Experiencia por perfil
 

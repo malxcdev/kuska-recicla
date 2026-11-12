@@ -10,17 +10,28 @@ export interface ScheduleContext {
   requests: PickupRequest[];
 }
 
+/**
+ * Cupos de una franja. La ocupación que se muestra junto a `dayLevel` es `capacity - remaining`.
+ */
 export interface SlotAvailability {
   slot: SlotDefinition;
   label: string;
+  /** Recicladores disponibles en esta franja. */
   collectorIds: string[];
+  /** `collectorIds.length × stopsPerCollector`. */
   capacity: number;
+  /**
+   * Recojos asignados de ESTA zona en la franja, los tenga quien los tenga
+   * (puede superar `capacity` si alguien tomó el día libre).
+   */
   booked: number;
+  /** Paradas libres de los recicladores disponibles; la carga de cada uno se cuenta en TODAS las zonas. */
   remaining: number;
 }
 
 export interface DayAvailability {
   date: string;
+  /** true = el día tiene servicio y personal (aun así puede estar lleno; usar `dayLevel` para ver cupos). */
   open: boolean;
   reason: string | null;
   slots: SlotAvailability[];
@@ -38,7 +49,10 @@ export const DAY_LEVEL_LABELS: Record<DayLevel, string> = {
   closed: "Sin servicio",
 };
 
-/** Recojos asignados a un reciclador en una fecha (y franja, si se indica), en cualquier zona. */
+/**
+ * Recojos asignados a un reciclador en una fecha (y franja, si se indica), en cualquier zona.
+ * Cuenta todos los estados (todavía no existe un estado cancelado).
+ */
 export function collectorLoad(requests: PickupRequest[], collectorId: string, date: string, slotId?: string): number {
   return requests.filter((r) => r.collectorId === collectorId && r.scheduledDate === date && (slotId === undefined || r.slotId === slotId)).length;
 }
