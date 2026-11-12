@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { getAvailableActions } from "@/data/requestActions";
-import { useAuthenticated, useRequests, useToast } from "@/state/contexts";
+import { useAuthenticated } from "@/state/contexts";
+import { useRequestOperations } from "@/state/useRequestOperations";
 import type { PickupRequest } from "@/types";
 
-/** Botón con la siguiente acción posible del pedido (aceptar, marcar recogido, recibir). */
+/** Botón con la acción principal del pedido (aceptar, marcar recogido, recibir). */
 export function RequestActionButton({ request, className = "inline-action" }: { request: PickupRequest; className?: string }) {
   const { session } = useAuthenticated();
-  const { updateStatus } = useRequests();
-  const announce = useToast();
+  const { run } = useRequestOperations();
   const [busy, setBusy] = useState(false);
   const [action] = getAvailableActions(request, session);
   if (!action) return null;
@@ -20,8 +20,7 @@ export function RequestActionButton({ request, className = "inline-action" }: { 
       onClick={async () => {
         setBusy(true);
         try {
-          await updateStatus(request.id, action.nextStatus, action.collectorId);
-          announce(action.successMessage);
+          await run(request, action);
         } finally {
           setBusy(false);
         }

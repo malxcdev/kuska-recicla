@@ -7,6 +7,7 @@ import { AuthPage } from "@/pages/auth/AuthPage";
 import { useSession } from "@/state/contexts";
 import { RequestFlowProvider } from "@/state/RequestFlowProvider";
 import { RequestsProvider } from "@/state/RequestsProvider";
+import { ScheduleProvider } from "@/state/ScheduleProvider";
 import { SessionProvider } from "@/state/SessionProvider";
 import { ToastProvider } from "@/state/ToastProvider";
 import type { SectionId } from "@/types";
@@ -25,7 +26,9 @@ function RequireSession({ children }: { children: ReactNode }) {
   if (!session || !actor) return <Navigate to="/ingresar" replace state={{ from: location.pathname }} />;
   return (
     <RequestsProvider>
-      <RequestFlowProvider>{children}</RequestFlowProvider>
+      <ScheduleProvider>
+        <RequestFlowProvider>{children}</RequestFlowProvider>
+      </ScheduleProvider>
     </RequestsProvider>
   );
 }

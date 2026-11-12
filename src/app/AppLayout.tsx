@@ -6,7 +6,7 @@ import { SECTION_TITLES } from "@/data/catalog";
 import { greeting } from "@/data/dates";
 import { requestsForSession } from "@/data/requestActions";
 import { formatKg, monthProgress, summarizeImpact } from "@/data/stats";
-import { useAuthenticated, useRequestFlow, useRequests, useToast } from "@/state/contexts";
+import { useAuthenticated, useRequestFlow, useRequests, useResetDemo, useToast } from "@/state/contexts";
 import { ROLE_CONFIG, type NavItem } from "./navigation";
 import type { SectionId } from "@/types";
 
@@ -14,7 +14,8 @@ const PENDING = new Set(["solicitado", "asignado", "recogido"]);
 
 export function AppLayout() {
   const { session, actor } = useAuthenticated();
-  const { requests, resetDemo } = useRequests();
+  const { requests } = useRequests();
+  const resetDemo = useResetDemo();
   const { openWizard } = useRequestFlow();
   const announce = useToast();
   const navigate = useNavigate();

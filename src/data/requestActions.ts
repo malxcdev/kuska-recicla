@@ -1,12 +1,8 @@
 import type { PickupRequest, RequestStatus, Session } from "@/types";
 
-export interface RequestAction {
-  id: "aceptar" | "recoger" | "recibir";
-  label: string;
-  nextStatus: RequestStatus;
-  collectorId?: string;
-  successMessage: string;
-}
+export type RequestAction =
+  | { id: "aceptar" | "recoger" | "recibir"; label: string; nextStatus: RequestStatus; collectorId?: string; successMessage: string }
+  | { id: "liberar"; label: string };
 
 /** Acciones que la sesión actual puede hacer sobre un pedido, según su rol y el estado. */
 export function getAvailableActions(request: PickupRequest, session: Session): RequestAction[] {
@@ -15,7 +11,10 @@ export function getAvailableActions(request: PickupRequest, session: Session): R
       return [{ id: "aceptar", label: "Aceptar recojo", nextStatus: "asignado", collectorId: session.actorId, successMessage: `Aceptaste el recojo ${request.id}.` }];
     }
     if (request.status === "asignado" && request.collectorId === session.actorId) {
-      return [{ id: "recoger", label: "Marcar como recogido", nextStatus: "recogido", successMessage: `Registraste el recojo ${request.id}.` }];
+      return [
+        { id: "recoger", label: "Marcar como recogido", nextStatus: "recogido", successMessage: `Registraste el recojo ${request.id}.` },
+        { id: "liberar", label: "No puedo ir" },
+      ];
     }
   }
   if (session.role === "empresa" && request.status === "recogido") {

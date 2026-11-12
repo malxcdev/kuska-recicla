@@ -97,17 +97,19 @@ describe("acciones por rol", () => {
     expect(mine.every((r) => r.requesterId === "com-bazar")).toBe(true);
   });
 
-  it("el reciclador acepta pedidos libres y marca como recogidos los suyos", () => {
+  it("el reciclador acepta pedidos libres, marca como recogidos los suyos o los libera", () => {
     const session = { actorId: "rec-rosa", role: "reciclador" as const, email: "x@y.pe" };
-    expect(getAvailableActions(request({ status: "solicitado", collectorId: null }), session)[0]?.nextStatus).toBe("asignado");
-    expect(getAvailableActions(request({ status: "asignado" }), session)[0]?.nextStatus).toBe("recogido");
-    expect(getAvailableActions(request({ status: "asignado", collectorId: "rec-mario" }), session)).toEqual([]);
+    const ids = (r: PickupRequest) => getAvailableActions(r, session).map((a) => a.id);
+    expect(ids(request({ status: "solicitado", collectorId: null }))).toEqual(["aceptar"]);
+    expect(ids(request({ status: "asignado" }))).toEqual(["recoger", "liberar"]);
+    expect(ids(request({ status: "asignado", collectorId: "rec-mario" }))).toEqual([]);
   });
 
   it("la empresa registra la recepción de lo recogido", () => {
     const session = { actorId: "emp-recicla", role: "empresa" as const, email: "x@y.pe" };
-    expect(getAvailableActions(request({ status: "recogido" }), session)[0]?.nextStatus).toBe("entregado");
-    expect(getAvailableActions(request({ status: "entregado" }), session)).toEqual([]);
+    const ids = (r: PickupRequest) => getAvailableActions(r, session).map((a) => a.id);
+    expect(ids(request({ status: "recogido" }))).toEqual(["recibir"]);
+    expect(ids(request({ status: "entregado" }))).toEqual([]);
   });
 });
 

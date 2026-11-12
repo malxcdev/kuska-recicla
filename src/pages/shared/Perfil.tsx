@@ -3,12 +3,12 @@ import { useNavigate } from "react-router";
 import { Icon } from "@/components/Icon";
 import { Avatar, PageIntro } from "@/components/ui";
 import { ROLE_LABELS, ZONE_IDS, ZONES } from "@/data/catalog";
-import { useAuthenticated, useRequests, useToast } from "@/state/contexts";
+import { useAuthenticated, useResetDemo, useToast } from "@/state/contexts";
 import type { ZoneId } from "@/types";
 
 export function Perfil() {
   const { actor, session, updateProfile, signOut } = useAuthenticated();
-  const { resetDemo } = useRequests();
+  const resetDemo = useResetDemo();
   const announce = useToast();
   const navigate = useNavigate();
   const id = useId();

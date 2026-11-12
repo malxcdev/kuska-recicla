@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { RequestDetailDialog } from "@/components/RequestDetailDialog";
 import { RequestWizard } from "@/components/RequestWizard";
 import { RequestFlowContext, useRequests, useSession, useToast, type RequestFlowValue } from "./contexts";
+import { useRequestOperations } from "./useRequestOperations";
 import type { MaterialId } from "@/types";
 
 /** Monta el asistente "Solicitar recojo" y el detalle de pedido, accesibles desde cualquier pantalla. */
@@ -10,7 +11,8 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const announce = useToast();
   const { session, actor, actorsById } = useSession();
-  const { requests, createRequest, updateStatus } = useRequests();
+  const { requests, createRequest } = useRequests();
+  const { run } = useRequestOperations();
   // `key` cambia en cada apertura para que el asistente empiece siempre en el paso 1.
   const [wizard, setWizard] = useState<{ key: number; material?: MaterialId } | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
             navigate("/perfil");
           }}
           onSubmit={async (input) => {
-            const created = await createRequest(input);
+            const created = await createRequest(input, null);
             setWizard(null);
             navigate("/pedidos");
             announce(`Recojo ${created.id} solicitado. Te avisaremos cuando sea asignado.`);
@@ -51,10 +53,7 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
           session={session}
           actorsById={actorsById}
           onClose={() => setDetailId(null)}
-          onAction={async (action) => {
-            await updateStatus(detail.id, action.nextStatus, action.collectorId);
-            announce(action.successMessage);
-          }}
+          onAction={(action) => run(detail, action)}
         />
       )}
     </RequestFlowContext.Provider>

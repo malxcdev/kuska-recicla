@@ -70,7 +70,7 @@ export function RequestDetailDialog({ request, session, actorsById, onClose, onA
           <a className="back-button" href={mapsUrl} target="_blank" rel="noreferrer"><Icon name="map" size={16} /> Cómo llegar</a>
         )}
         {actions.map((action) => (
-          <button key={action.id} type="button" className="primary-button" disabled={busy} onClick={() => run(action)}>{action.label}</button>
+          <button key={action.id} type="button" className={action.id === "liberar" ? "back-button" : "primary-button"} disabled={busy} onClick={() => run(action)}>{action.label}</button>
         ))}
       </div>
     </Dialog>

@@ -19,8 +19,8 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const createRequest = useCallback(async (input: NewPickupRequest) => {
-    const created = await requestsRepo.create(input);
+  const createRequest = useCallback(async (input: NewPickupRequest, collectorId: string | null) => {
+    const created = await requestsRepo.create(input, collectorId);
     setRequests((current) => [created, ...current]);
     return created;
   }, []);
@@ -30,13 +30,18 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     setRequests((current) => current.map((r) => (r.id === id ? updated : r)));
   }, []);
 
+  const reassign = useCallback(async (id: string, collectorId: string | null) => {
+    const updated = await requestsRepo.reassign(id, collectorId);
+    setRequests((current) => current.map((r) => (r.id === id ? updated : r)));
+  }, []);
+
   const resetDemo = useCallback(async () => {
     setRequests(await requestsRepo.reset());
   }, []);
 
   const value = useMemo<RequestsValue>(
-    () => ({ requests, loading, createRequest, updateStatus, resetDemo }),
-    [requests, loading, createRequest, updateStatus, resetDemo],
+    () => ({ requests, loading, createRequest, updateStatus, reassign, resetDemo }),
+    [requests, loading, createRequest, updateStatus, reassign, resetDemo],
   );
 
   return <RequestsContext.Provider value={value}>{children}</RequestsContext.Provider>;
