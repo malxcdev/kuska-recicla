@@ -5,9 +5,9 @@
  */
 import { MATERIALS, STATUS_FLOW, ZONES } from "./catalog";
 import { nextRequestId } from "./ids";
-import { createSeedRequests, DEMO_ACTOR_BY_ROLE, SEED_ACTORS, SEED_LOTS } from "./mock";
+import { createSeedClosures, createSeedRequests, createSeedTimeOff, DEMO_ACTOR_BY_ROLE, SEED_ACTORS, SEED_AVAILABILITY, SEED_LOTS, SEED_ZONE_SCHEDULES } from "./mock";
 import { readJSON, removeKey, writeJSON } from "./storage";
-import type { Actor, Lot, NewPickupRequest, PickupRequest, RequestStatus, Role, Session } from "@/types";
+import type { Actor, CollectorAvailability, CollectorTimeOff, Lot, NewPickupRequest, PickupRequest, RequestStatus, Role, ServiceClosure, Session, SlotDefinition, ZoneId, ZoneSchedule } from "@/types";
 
 export const STORAGE_KEYS = {
   requests: "kuska:requests:v3",
@@ -15,6 +15,10 @@ export const STORAGE_KEYS = {
   actors: "kuska:actors:v1",
   session: "kuska:session:v1",
   legacyRequests: "kuska-requests",
+  schedules: "kuska:schedules:v1",
+  closures: "kuska:closures:v1",
+  availability: "kuska:availability:v1",
+  timeOff: "kuska:timeoff:v1",
 } as const;
 
 const ROLES: Role[] = ["comercio", "reciclador", "empresa", "municipio"];
@@ -71,12 +75,23 @@ export const requestsRepo = {
     return loadRequests();
   },
 
-  async create(input: NewPickupRequest): Promise<PickupRequest> {
+  /** Con reciclador nace asignado; sin reciclador queda solicitado. */
+  async create(input: NewPickupRequest, collectorId: string | null = null): Promise<PickupRequest> {
     const all = loadRequests();
     const now = new Date().toISOString();
-    const request: PickupRequest = { ...input, id: nextRequestId(all), status: "solicitado", collectorId: null, createdAt: now, updatedAt: now };
+    const request: PickupRequest = { ...input, id: nextRequestId(all), status: collectorId ? "asignado" : "solicitado", collectorId, createdAt: now, updatedAt: now };
     writeJSON(STORAGE_KEYS.requests, [request, ...all]);
     return request;
+  },
+
+  /** Cambia el reciclador; con null el pedido vuelve a la lista de disponibles. */
+  async reassign(id: string, collectorId: string | null): Promise<PickupRequest> {
+    const all = loadRequests();
+    const current = all.find((r) => r.id === id);
+    if (!current) throw new Error(`No existe el pedido ${id}.`);
+    const updated: PickupRequest = { ...current, collectorId, status: collectorId ? "asignado" : "solicitado", updatedAt: new Date().toISOString() };
+    writeJSON(STORAGE_KEYS.requests, all.map((r) => (r.id === id ? updated : r)));
+    return updated;
   },
 
   async updateStatus(id: string, status: RequestStatus, collectorId?: string): Promise<PickupRequest> {
@@ -139,6 +154,89 @@ export const actorsRepo = {
 export const lotsRepo = {
   async list(): Promise<Lot[]> {
     return SEED_LOTS;
+  },
+};
+
+/* ---------- Calendario de disponibilidad ---------- */
+
+const isString = (v: unknown): v is string => typeof v === "string";
+const isISODate = (v: unknown): v is string => isString(v) && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const isZone = (v: unknown): v is ZoneId => isString(v) && v in ZONES;
+
+const isSlot = (v: unknown): v is SlotDefinition => isRecord(v) && isString(v.id) && isString(v.start) && isString(v.end);
+
+const isZoneSchedule = (v: unknown): v is ZoneSchedule =>
+  isRecord(v) && isZone(v.zone) &&
+  Array.isArray(v.weekdays) && v.weekdays.every((d) => Number.isInteger(d) && d >= 0 && d <= 6) &&
+  Array.isArray(v.slots) && v.slots.every(isSlot) &&
+  typeof v.stopsPerCollector === "number" && typeof v.horizonDays === "number";
+
+const isClosure = (v: unknown): v is ServiceClosure =>
+  isRecord(v) && isString(v.id) && isISODate(v.date) && (v.zone === null || isZone(v.zone)) && isString(v.reason);
+
+const isCollectorAvailability = (v: unknown): v is CollectorAvailability =>
+  isRecord(v) && isString(v.collectorId) && isZone(v.zone) && isRecord(v.weekly) &&
+  Object.values(v.weekly).every((ids) => Array.isArray(ids) && ids.every(isString));
+
+const isTimeOff = (v: unknown): v is CollectorTimeOff => isRecord(v) && isString(v.id) && isString(v.collectorId) && isISODate(v.date);
+
+function loadList<T>(key: string, guard: (v: unknown) => v is T, seed: () => T[]): T[] {
+  const stored = readJSON(key);
+  if (Array.isArray(stored) && stored.every(guard)) return stored;
+  const fresh = seed();
+  writeJSON(key, fresh);
+  return fresh;
+}
+
+const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+
+const loadSchedules = () => loadList(STORAGE_KEYS.schedules, isZoneSchedule, () => SEED_ZONE_SCHEDULES);
+const loadClosures = () => loadList(STORAGE_KEYS.closures, isClosure, () => createSeedClosures(new Date()));
+const loadAvailability = () => loadList(STORAGE_KEYS.availability, isCollectorAvailability, () => SEED_AVAILABILITY);
+const loadTimeOff = () => loadList(STORAGE_KEYS.timeOff, isTimeOff, () => createSeedTimeOff(new Date()));
+
+export const scheduleRepo = {
+  async listZoneSchedules(): Promise<ZoneSchedule[]> {
+    return loadSchedules();
+  },
+  async saveZoneSchedule(schedule: ZoneSchedule): Promise<ZoneSchedule[]> {
+    const next = [...loadSchedules().filter((s) => s.zone !== schedule.zone), schedule];
+    writeJSON(STORAGE_KEYS.schedules, next);
+    return next;
+  },
+  async listClosures(): Promise<ServiceClosure[]> {
+    return loadClosures();
+  },
+  async addClosure(input: Omit<ServiceClosure, "id">): Promise<ServiceClosure> {
+    const closure = { ...input, id: newId("cl") };
+    writeJSON(STORAGE_KEYS.closures, [...loadClosures(), closure]);
+    return closure;
+  },
+  async removeClosure(id: string): Promise<void> {
+    writeJSON(STORAGE_KEYS.closures, loadClosures().filter((c) => c.id !== id));
+  },
+  async listAvailability(): Promise<CollectorAvailability[]> {
+    return loadAvailability();
+  },
+  async saveAvailability(entry: CollectorAvailability): Promise<CollectorAvailability[]> {
+    const next = [...loadAvailability().filter((a) => a.collectorId !== entry.collectorId), entry];
+    writeJSON(STORAGE_KEYS.availability, next);
+    return next;
+  },
+  async listTimeOff(): Promise<CollectorTimeOff[]> {
+    return loadTimeOff();
+  },
+  async addTimeOff(input: Omit<CollectorTimeOff, "id">): Promise<CollectorTimeOff> {
+    const entry = { ...input, id: newId("to") };
+    writeJSON(STORAGE_KEYS.timeOff, [...loadTimeOff(), entry]);
+    return entry;
+  },
+  async removeTimeOff(id: string): Promise<void> {
+    writeJSON(STORAGE_KEYS.timeOff, loadTimeOff().filter((t) => t.id !== id));
+  },
+  /** Borra lo guardado; la próxima lectura vuelve a sembrar. */
+  async reset(): Promise<void> {
+    [STORAGE_KEYS.schedules, STORAGE_KEYS.closures, STORAGE_KEYS.availability, STORAGE_KEYS.timeOff].forEach((key) => removeKey(key));
   },
 };
 

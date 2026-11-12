@@ -1,6 +1,6 @@
-import { DEFAULT_SLOTS, slotLabel } from "./catalog";
+import { DEFAULT_SLOTS, defaultZoneSchedule, slotLabel, ZONE_IDS } from "./catalog";
 import { addDays, toISODate } from "./dates";
-import type { Actor, Lot, MaterialId, PickupRequest, RequestStatus, Role } from "@/types";
+import type { Actor, CollectorAvailability, CollectorTimeOff, Lot, MaterialId, PickupRequest, RequestStatus, Role, ServiceClosure, ZoneSchedule } from "@/types";
 
 /** Cuenta de demostración que se usa al iniciar sesión con cada tipo de cuenta. */
 export const DEMO_ACTOR_BY_ROLE: Record<Role, string> = {
@@ -84,4 +84,33 @@ export function createSeedRequests(today: Date, actors: Actor[] = SEED_ACTORS): 
       updatedAt: created,
     };
   }).reverse();
+}
+
+export const SEED_ZONE_SCHEDULES: ZoneSchedule[] = ZONE_IDS.map(defaultZoneSchedule);
+
+const MORNING = ["08-10", "10-12"];
+const MIDDAY = ["10-12", "14-16"];
+const ALL_SLOTS = DEFAULT_SLOTS.map((s) => s.id);
+
+/** La zona D queda a propósito sin recicladores, para ver el caso en la demo. */
+export const SEED_AVAILABILITY: CollectorAvailability[] = [
+  { collectorId: "rec-rosa", zone: "A", weekly: { 1: MORNING, 3: MORNING, 5: MORNING, 6: ["08-10"] } },
+  { collectorId: "rec-mario", zone: "B", weekly: { 2: MIDDAY, 3: MIDDAY, 4: MIDDAY, 5: MIDDAY, 6: MIDDAY } },
+  { collectorId: "rec-kawsay", zone: "C", weekly: { 1: ALL_SLOTS, 2: ALL_SLOTS, 3: ALL_SLOTS, 4: ALL_SLOTS, 5: ALL_SLOTS, 6: ALL_SLOTS } },
+];
+
+function nextWeekday(from: Date, weekday: number): Date {
+  let cursor = addDays(from, 1);
+  while (cursor.getDay() !== weekday) cursor = addDays(cursor, 1);
+  return cursor;
+}
+
+export function createSeedClosures(today: Date): ServiceClosure[] {
+  const passed = today.getMonth() === 11 && today.getDate() > 8;
+  const year = passed ? today.getFullYear() + 1 : today.getFullYear();
+  return [{ id: "cl-inmaculada", date: `${year}-12-08`, zone: null, reason: "Feriado: Inmaculada Concepción" }];
+}
+
+export function createSeedTimeOff(today: Date): CollectorTimeOff[] {
+  return [{ id: "to-rosa-1", collectorId: "rec-rosa", date: toISODate(nextWeekday(addDays(today, 1), 3)), reason: "Cita médica" }];
 }
