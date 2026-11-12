@@ -2,7 +2,8 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router";
 import { RequestDetailDialog } from "@/components/RequestDetailDialog";
 import { RequestWizard } from "@/components/RequestWizard";
-import { RequestFlowContext, useRequests, useSession, useToast, type RequestFlowValue } from "./contexts";
+import { getAvailability, getDayAvailability, pickCollector } from "@/data/availability";
+import { RequestFlowContext, useRequests, useScheduleInput, useSession, useToast, type RequestFlowValue } from "./contexts";
 import { useRequestOperations } from "./useRequestOperations";
 import type { MaterialId } from "@/types";
 
@@ -13,6 +14,8 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
   const { session, actor, actorsById } = useSession();
   const { requests, createRequest } = useRequests();
   const { run } = useRequestOperations();
+  const contextFor = useScheduleInput();
+  const [today] = useState(() => new Date());
   // `key` cambia en cada apertura para que el asistente empiece siempre en el paso 1.
   const [wizard, setWizard] = useState<{ key: number; material?: MaterialId } | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -31,7 +34,8 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
         <RequestWizard
           key={wizard.key}
           actor={actor}
-          requests={requests}
+          days={getAvailability(today, contextFor(actor.zone))}
+          today={today}
           initialMaterial={wizard.material}
           onClose={() => setWizard(null)}
           onEditAddress={() => {
@@ -39,22 +43,20 @@ export function RequestFlowProvider({ children }: { children: ReactNode }) {
             navigate("/perfil");
           }}
           onSubmit={async (input) => {
-            const created = await createRequest(input, null);
+            // Se recalcula al confirmar: otro comercio pudo tomar el último cupo.
+            const ctx = contextFor(actor.zone);
+            const collectorId = pickCollector(getDayAvailability(input.scheduledDate, ctx), input.slotId, ctx.requests, ctx.schedule.stopsPerCollector);
+            if (!collectorId) throw new Error("Ese horario se acaba de llenar. Elige otro.");
+            const created = await createRequest(input, collectorId);
             setWizard(null);
             navigate("/pedidos");
-            announce(`Recojo ${created.id} solicitado. Te avisaremos cuando sea asignado.`);
+            announce(`Recojo ${created.id} confirmado. Te visitará ${actorsById.get(collectorId)?.name ?? "un reciclador de tu zona"}.`);
           }}
         />
       )}
 
       {detail && session && (
-        <RequestDetailDialog
-          request={detail}
-          session={session}
-          actorsById={actorsById}
-          onClose={() => setDetailId(null)}
-          onAction={(action) => run(detail, action)}
-        />
+        <RequestDetailDialog request={detail} session={session} actorsById={actorsById} onClose={() => setDetailId(null)} onAction={(action) => run(detail, action)} />
       )}
     </RequestFlowContext.Provider>
   );

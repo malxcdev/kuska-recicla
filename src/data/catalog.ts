@@ -47,16 +47,11 @@ export const DEFAULT_SLOTS: SlotDefinition[] = [
 
 export const slotLabel = (slot: Pick<SlotDefinition, "start" | "end">) => `${slot.start} – ${slot.end}`;
 
-export const SLOTS = DEFAULT_SLOTS.map(slotLabel);
-
 export const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
 export function defaultZoneSchedule(zone: ZoneId): ZoneSchedule {
   return { zone, weekdays: [1, 2, 3, 4, 5, 6], slots: DEFAULT_SLOTS, stopsPerCollector: 3, horizonDays: 14 };
 }
-
-/** Recojos que puede atender cada franja horaria por zona. */
-export const SLOT_CAPACITY = 3;
 
 export const MIN_KG = 1;
 export const MAX_KG = 200;

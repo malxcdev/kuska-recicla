@@ -1,15 +1,16 @@
 import { useId, useState } from "react";
-import { DEFAULT_SLOTS, MATERIAL_LIST, MATERIALS, MAX_KG, MIN_KG, SLOT_CAPACITY, SLOTS, slotLabel, ZONES } from "@/data/catalog";
-import { dayNumber, formatRelativeDay, getPickupDays, monthShort, weekdayShort } from "@/data/dates";
+import { DAY_LEVEL_LABELS, dayLevel, remainingOf, type DayAvailability } from "@/data/availability";
+import { MATERIAL_LIST, MATERIALS, MAX_KG, MIN_KG, ZONES } from "@/data/catalog";
+import { dayNumber, formatRelativeDay, monthShort, weekdayShort } from "@/data/dates";
 import { Dialog } from "./Dialog";
 import { Icon } from "./Icon";
 import { materialStyle } from "./materialStyle";
-import type { Actor, MaterialId, NewPickupRequest, PickupRequest } from "@/types";
+import type { Actor, MaterialId, NewPickupRequest } from "@/types";
 
 interface RequestWizardProps {
   actor: Actor;
-  /** Pedidos existentes, para calcular los cupos libres de cada franja. */
-  requests: PickupRequest[];
+  /** Disponibilidad de los próximos días en la zona del comercio. */
+  days: DayAvailability[];
   initialMaterial?: MaterialId;
   today?: Date;
   onClose: () => void;
@@ -17,14 +18,15 @@ interface RequestWizardProps {
   onEditAddress: () => void;
 }
 
-export function RequestWizard({ actor, requests, initialMaterial = "carton", today, onClose, onSubmit, onEditAddress }: RequestWizardProps) {
+const LEGEND = ["open", "low", "full", "closed"] as const;
+
+export function RequestWizard({ actor, days, initialMaterial = "carton", today, onClose, onSubmit, onEditAddress }: RequestWizardProps) {
   const ids = { kg: useId(), materials: useId(), days: useId(), slots: useId(), kgHint: useId() };
-  const [days] = useState(() => getPickupDays(today ?? new Date()));
   const [step, setStep] = useState<1 | 2>(1);
   const [material, setMaterial] = useState<MaterialId>(initialMaterial);
   const [kgText, setKgText] = useState("10");
-  const [day, setDay] = useState(days[0]);
-  const [slot, setSlot] = useState<string | null>(null);
+  const [date, setDate] = useState<string | null>(() => days.find((d) => d.open && remainingOf(d) > 0)?.date ?? null);
+  const [slotId, setSlotId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,21 +34,18 @@ export function RequestWizard({ actor, requests, initialMaterial = "carton", tod
   const kgValid = Number.isInteger(kg) && kg >= MIN_KG && kg <= MAX_KG;
   const setKg = (value: number) => setKgText(String(Math.min(MAX_KG, Math.max(MIN_KG, value))));
 
-  const remaining = (date: string, time: string) =>
-    SLOT_CAPACITY - requests.filter((r) => r.zone === actor.zone && r.scheduledDate === date && r.slot === time).length;
-
-  const firstFreeSlot = (date: string) => SLOTS.find((time) => remaining(date, time) > 0) ?? null;
-  const selectedSlot = slot && remaining(day, slot) > 0 ? slot : firstFreeSlot(day);
+  const day = days.find((d) => d.date === date);
+  const selected = day?.slots.find((s) => s.slot.id === slotId && s.remaining > 0) ?? day?.slots.find((s) => s.remaining > 0) ?? null;
   const hasAddress = actor.address.trim().length > 0;
 
   const submit = async () => {
-    if (!selectedSlot || !hasAddress) return;
+    if (!day || !selected || !hasAddress) return;
     setSubmitting(true);
     setError("");
     try {
-      await onSubmit({ requesterId: actor.id, material, kg, scheduledDate: day, slotId: DEFAULT_SLOTS.find((s) => slotLabel(s) === selectedSlot)?.id ?? "", slot: selectedSlot, address: actor.address, zone: actor.zone });
-    } catch {
-      setError("No pudimos registrar el recojo. Inténtalo otra vez.");
+      await onSubmit({ requesterId: actor.id, material, kg, scheduledDate: day.date, slotId: selected.slot.id, slot: selected.label, address: actor.address, zone: actor.zone });
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "No pudimos registrar el recojo. Inténtalo otra vez.");
       setSubmitting(false);
     }
   };
@@ -94,40 +93,48 @@ export function RequestWizard({ actor, requests, initialMaterial = "carton", tod
           </div>
 
           <p id={ids.days} className="amount-label">Día del recojo</p>
-          <div className="day-picker" role="group" aria-labelledby={ids.days}>
-            {days.map((date) => (
-              <button key={date} type="button" aria-pressed={day === date} className={day === date ? "selected" : ""} onClick={() => setDay(date)} aria-label={formatRelativeDay(date, today)}>
-                <span>{weekdayShort(date)}</span>
-                <strong>{dayNumber(date)}</strong>
-                <small>{monthShort(date)}</small>
-              </button>
-            ))}
-          </div>
-
-          <p id={ids.slots} className="amount-label">Horarios disponibles</p>
-          <div className="slot-picker" role="group" aria-labelledby={ids.slots}>
-            {SLOTS.map((time) => {
-              const free = remaining(day, time);
+          <div className="day-strip" role="group" aria-labelledby={ids.days}>
+            {days.map((d) => {
+              const level = dayLevel(d);
+              const status = d.reason ?? DAY_LEVEL_LABELS[level];
               return (
-                <button key={time} type="button" disabled={free <= 0} aria-pressed={selectedSlot === time} className={selectedSlot === time ? "selected" : ""} onClick={() => setSlot(time)}>
-                  <Icon name="clock" size={16} />
-                  {time}
-                  <span>{free <= 0 ? "Sin cupos" : free === 1 ? "1 cupo" : "Disponible"}</span>
+                <button key={d.date} type="button" disabled={level === "closed" || level === "full"} aria-pressed={date === d.date} className={`day-chip ${date === d.date ? "selected" : ""}`} onClick={() => { setDate(d.date); setSlotId(null); }} aria-label={`${formatRelativeDay(d.date, today)} · ${status}`} title={status}>
+                  <span>{weekdayShort(d.date)}</span>
+                  <strong>{dayNumber(d.date)}</strong>
+                  <small>{monthShort(d.date)}</small>
+                  <i className={`level-dot ${level}`} aria-hidden="true" />
                 </button>
               );
             })}
           </div>
+          <ul className="level-legend" aria-hidden="true">
+            {LEGEND.map((level) => <li key={level}><i className={`level-dot ${level}`} />{DAY_LEVEL_LABELS[level]}</li>)}
+          </ul>
 
-          <p className="hint">
-            {selectedSlot
-              ? `${kg} kg de ${MATERIALS[material].name.toLowerCase()} · ${formatRelativeDay(day, today)} · ${selectedSlot}`
-              : "No quedan cupos este día. Elige otro."}
-          </p>
+          {day ? (
+            <>
+              <p id={ids.slots} className="amount-label">Horarios disponibles</p>
+              <div className="slot-picker" role="group" aria-labelledby={ids.slots}>
+                {day.slots.map((s) => (
+                  <button key={s.slot.id} type="button" disabled={s.remaining <= 0} aria-pressed={selected?.slot.id === s.slot.id} className={selected?.slot.id === s.slot.id ? "selected" : ""} onClick={() => setSlotId(s.slot.id)}>
+                    <Icon name="clock" size={16} />
+                    {s.label}
+                    <span>{s.collectorIds.length === 0 ? "Sin reciclador" : s.remaining <= 0 ? "Sin cupos" : s.remaining === 1 ? "1 cupo" : `${s.remaining} cupos`}</span>
+                  </button>
+                ))}
+              </div>
+              <p className="hint">
+                {selected ? `${kg} kg de ${MATERIALS[material].name.toLowerCase()} · ${formatRelativeDay(day.date, today)} · ${selected.label}` : "No quedan cupos este día. Elige otro."}
+              </p>
+            </>
+          ) : (
+            <p className="hint error">No hay cupos en los próximos {days.length} días en tu zona. Prueba más adelante.</p>
+          )}
           {error && <p className="hint error" role="alert">{error}</p>}
 
           <div className="modal-actions">
             <button type="button" className="back-button" onClick={() => setStep(1)}>Atrás</button>
-            <button type="button" className="primary-button" onClick={submit} disabled={!selectedSlot || !hasAddress || submitting}>
+            <button type="button" className="primary-button" onClick={submit} disabled={!selected || !hasAddress || submitting}>
               {submitting ? "Registrando…" : "Confirmar recojo"}
             </button>
           </div>
