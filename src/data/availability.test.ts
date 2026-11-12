@@ -115,6 +115,12 @@ describe("pickCollector", () => {
     expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-rosa");
   });
 
+  it("la carga de la franja pesa más que la del día", () => {
+    // rosa: 2 recojos ese día pero 0 en 10-12; mario: 1 en el día, y es en 10-12
+    const c = ctx({ requests: [req({ id: "a", slotId: "08-10" }), req({ id: "b", slotId: "14-16" }), req({ id: "c", collectorId: "rec-mario" })] });
+    expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-rosa");
+  });
+
   it("en empate total desempata por id", () => {
     const c = ctx();
     expect(pickCollector(getDayAvailability(MONDAY, c), "10-12", c.requests, 2)).toBe("rec-mario");
