@@ -39,9 +39,13 @@ export function RequestsProvider({ children }: { children: ReactNode }) {
     setRequests(await requestsRepo.reset());
   }, []);
 
+  const refresh = useCallback(async () => {
+    setRequests(await requestsRepo.list());
+  }, []);
+
   const value = useMemo<RequestsValue>(
-    () => ({ requests, loading, createRequest, updateStatus, reassign, resetDemo }),
-    [requests, loading, createRequest, updateStatus, reassign, resetDemo],
+    () => ({ requests, loading, createRequest, updateStatus, reassign, resetDemo, refresh }),
+    [requests, loading, createRequest, updateStatus, reassign, resetDemo, refresh],
   );
 
   return <RequestsContext.Provider value={value}>{children}</RequestsContext.Provider>;

@@ -1,6 +1,7 @@
 import { useId, useState } from "react";
-import { DAY_LEVEL_LABELS, dayLevel, remainingOf, type DayAvailability } from "@/data/availability";
+import { DAY_LEVEL_LABELS, dayLevel, type DayAvailability } from "@/data/availability";
 import { MATERIAL_LIST, MATERIALS, MAX_KG, MIN_KG, ZONES } from "@/data/catalog";
+import { UserFacingError } from "@/data/errors";
 import { dayNumber, formatRelativeDay, monthShort, weekdayShort } from "@/data/dates";
 import { Dialog } from "./Dialog";
 import { Icon } from "./Icon";
@@ -20,12 +21,17 @@ interface RequestWizardProps {
 
 const LEGEND = ["open", "low", "full", "closed"] as const;
 
+const isBookable = (day: DayAvailability) => {
+  const level = dayLevel(day);
+  return level !== "closed" && level !== "full";
+};
+
 export function RequestWizard({ actor, days, initialMaterial = "carton", today, onClose, onSubmit, onEditAddress }: RequestWizardProps) {
   const ids = { kg: useId(), materials: useId(), days: useId(), slots: useId(), kgHint: useId() };
   const [step, setStep] = useState<1 | 2>(1);
   const [material, setMaterial] = useState<MaterialId>(initialMaterial);
   const [kgText, setKgText] = useState("10");
-  const [date, setDate] = useState<string | null>(() => days.find((d) => d.open && remainingOf(d) > 0)?.date ?? null);
+  const [date, setDate] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +40,8 @@ export function RequestWizard({ actor, days, initialMaterial = "carton", today, 
   const kgValid = Number.isInteger(kg) && kg >= MIN_KG && kg <= MAX_KG;
   const setKg = (value: number) => setKgText(String(Math.min(MAX_KG, Math.max(MIN_KG, value))));
 
-  const day = days.find((d) => d.date === date);
+  // La disponibilidad puede cambiar con el formulario abierto: si el día elegido ya no tiene cupos, se pasa al primero que sí.
+  const day = days.find((d) => d.date === date && isBookable(d)) ?? days.find(isBookable);
   const selected = day?.slots.find((s) => s.slot.id === slotId && s.remaining > 0) ?? day?.slots.find((s) => s.remaining > 0) ?? null;
   const hasAddress = actor.address.trim().length > 0;
 
@@ -45,7 +52,7 @@ export function RequestWizard({ actor, days, initialMaterial = "carton", today, 
     try {
       await onSubmit({ requesterId: actor.id, material, kg, scheduledDate: day.date, slotId: selected.slot.id, slot: selected.label, address: actor.address, zone: actor.zone });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "No pudimos registrar el recojo. Inténtalo otra vez.");
+      setError(caught instanceof UserFacingError ? caught.message : "No pudimos registrar el recojo. Inténtalo otra vez.");
       setSubmitting(false);
     }
   };
@@ -98,7 +105,7 @@ export function RequestWizard({ actor, days, initialMaterial = "carton", today, 
               const level = dayLevel(d);
               const status = d.reason ?? DAY_LEVEL_LABELS[level];
               return (
-                <button key={d.date} type="button" disabled={level === "closed" || level === "full"} aria-pressed={date === d.date} className={`day-chip ${date === d.date ? "selected" : ""}`} onClick={() => { setDate(d.date); setSlotId(null); }} aria-label={`${formatRelativeDay(d.date, today)} · ${status}`} title={status}>
+                <button key={d.date} type="button" disabled={!isBookable(d)} aria-pressed={day?.date === d.date} className={`day-chip ${day?.date === d.date ? "selected" : ""}`} onClick={() => { setDate(d.date); setSlotId(null); setError(""); }} aria-label={`${formatRelativeDay(d.date, today)} · ${status}`} title={status}>
                   <span>{weekdayShort(d.date)}</span>
                   <strong>{dayNumber(d.date)}</strong>
                   <small>{monthShort(d.date)}</small>
@@ -116,7 +123,7 @@ export function RequestWizard({ actor, days, initialMaterial = "carton", today, 
               <p id={ids.slots} className="amount-label">Horarios disponibles</p>
               <div className="slot-picker" role="group" aria-labelledby={ids.slots}>
                 {day.slots.map((s) => (
-                  <button key={s.slot.id} type="button" disabled={s.remaining <= 0} aria-pressed={selected?.slot.id === s.slot.id} className={selected?.slot.id === s.slot.id ? "selected" : ""} onClick={() => setSlotId(s.slot.id)}>
+                  <button key={s.slot.id} type="button" disabled={s.remaining <= 0} aria-pressed={selected?.slot.id === s.slot.id} className={selected?.slot.id === s.slot.id ? "selected" : ""} onClick={() => { setSlotId(s.slot.id); setError(""); }}>
                     <Icon name="clock" size={16} />
                     {s.label}
                     <span>{s.collectorIds.length === 0 ? "Sin reciclador" : s.remaining <= 0 ? "Sin cupos" : s.remaining === 1 ? "1 cupo" : `${s.remaining} cupos`}</span>

@@ -38,6 +38,8 @@ export interface RequestsValue {
   updateStatus: (id: string, status: RequestStatus, collectorId?: string) => Promise<void>;
   reassign: (id: string, collectorId: string | null) => Promise<void>;
   resetDemo: () => Promise<void>;
+  /** Vuelve a leer los pedidos del repositorio. */
+  refresh: () => Promise<void>;
 }
 export const RequestsContext = createContext<RequestsValue | null>(null);
 export const useRequests = () => useRequired(RequestsContext, "useRequests");

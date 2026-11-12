@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { DayAvailability, SlotAvailability } from "@/data/availability";
+import { UserFacingError } from "@/data/errors";
 import { SEED_ACTORS } from "@/data/mock";
 import { RequestWizard } from "./RequestWizard";
 
@@ -21,8 +22,9 @@ const DAYS: DayAvailability[] = [
 
 function setup(days = DAYS, onSubmit = vi.fn().mockResolvedValue(undefined)) {
   const onClose = vi.fn();
-  render(<RequestWizard actor={actor} days={days} today={TODAY} onSubmit={onSubmit} onClose={onClose} onEditAddress={vi.fn()} />);
-  return { onSubmit, onClose, user: userEvent.setup() };
+  const wizard = (current: DayAvailability[]) => <RequestWizard actor={actor} days={current} today={TODAY} onSubmit={onSubmit} onClose={onClose} onEditAddress={vi.fn()} />;
+  const { rerender } = render(wizard(days));
+  return { onSubmit, onClose, user: userEvent.setup(), rerenderWith: (next: DayAvailability[]) => rerender(wizard(next)) };
 }
 
 describe("RequestWizard", () => {
@@ -66,10 +68,61 @@ describe("RequestWizard", () => {
   });
 
   it("muestra el error si la reserva falla", async () => {
-    const { user } = setup(DAYS, vi.fn().mockRejectedValue(new Error("Ese horario se acaba de llenar. Elige otro.")));
+    const { user } = setup(DAYS, vi.fn().mockRejectedValue(new UserFacingError("Ese horario se acaba de llenar. Elige otro.")));
     await user.click(screen.getByRole("button", { name: /continuar/i }));
     await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Ese horario se acaba de llenar");
+  });
+
+  it("oculta los errores internos tras un mensaje genérico", async () => {
+    const { user } = setup(DAYS, vi.fn().mockRejectedValue(new Error("boom")));
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("No pudimos registrar el recojo. Inténtalo otra vez.");
+    expect(alert).not.toHaveTextContent("boom");
+  });
+
+  it("envía la franja elegida", async () => {
+    const { onSubmit, user } = setup();
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    await user.click(screen.getByRole("button", { name: /14:00 – 16:00/ }));
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ scheduledDate: "2026-11-13", slotId: "14-16", slot: "14:00 – 16:00" }));
+  });
+
+  it("cambiar de día reinicia la franja", async () => {
+    const { onSubmit, user } = setup();
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    await user.click(screen.getByRole("button", { name: /14:00 – 16:00/ }));
+    await user.click(screen.getByRole("button", { name: /^sáb, 14/i }));
+    await user.click(screen.getByRole("button", { name: /^mañana, 13/i }));
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ scheduledDate: "2026-11-13", slotId: "10-12" }));
+  });
+
+  it("limpia el error al elegir otro día o franja", async () => {
+    const { user } = setup(DAYS, vi.fn().mockRejectedValue(new UserFacingError("Ese horario se acaba de llenar. Elige otro.")));
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    await screen.findByRole("alert");
+    await user.click(screen.getByRole("button", { name: /14:00 – 16:00/ }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    await screen.findByRole("alert");
+    await user.click(screen.getByRole("button", { name: /^sáb, 14/i }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("si el día elegido se llena, pasa al primer día con cupos", async () => {
+    const { onSubmit, user, rerenderWith } = setup();
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    await user.click(screen.getByRole("button", { name: /^sáb, 14/i }));
+    // El sábado se llena mientras el formulario está abierto.
+    rerenderWith(DAYS.map((d) => (d.date === "2026-11-14" ? { ...d, slots: d.slots.map((s) => ({ ...s, remaining: 0 })) } : d)));
+    expect(screen.getByRole("button", { name: /^mañana, 13/i })).toHaveAttribute("aria-pressed", "true");
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ scheduledDate: "2026-11-13", slotId: "10-12" }));
   });
 
   it("se cierra con Escape", async () => {

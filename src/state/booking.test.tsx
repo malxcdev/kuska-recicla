@@ -23,4 +23,23 @@ describe("reserva de un comercio", () => {
       expect(latest).toMatchObject({ requesterId: "com-bazar", scheduledDate: "2026-11-13", slotId: "08-10", status: "asignado", collectorId: "rec-rosa" });
     });
   });
+
+  it("revisa los cupos con datos frescos al confirmar", async () => {
+    freezeToday();
+    const { user } = renderApp("/inicio", "comercio");
+    await user.click((await screen.findAllByRole("button", { name: /solicitar recojo/i }))[0]);
+    await user.click(screen.getByRole("button", { name: /continuar/i }));
+    expect(screen.getByRole("button", { name: /08:00 – 10:00/ })).toHaveAttribute("aria-pressed", "true");
+
+    // Con el formulario abierto, otro comercio toma los últimos cupos de Rosa en esa franja.
+    const before = await requestsRepo.list();
+    for (let i = 0; i < 3; i++) {
+      await requestsRepo.create({ requesterId: "com-inti", material: "carton", kg: 5, scheduledDate: "2026-11-13", slotId: "08-10", slot: "08:00 – 10:00", address: "Av. Ejército 980", zone: "A" }, "rec-rosa");
+    }
+
+    await user.click(screen.getByRole("button", { name: /confirmar recojo/i }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Ese horario se acaba de llenar");
+    expect(screen.getByRole("button", { name: /08:00 – 10:00/ })).toBeDisabled();
+    expect(await requestsRepo.list()).toHaveLength(before.length + 3);
+  });
 });
