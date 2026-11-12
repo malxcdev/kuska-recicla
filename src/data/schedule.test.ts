@@ -67,4 +67,10 @@ describe("requestsRepo con asignación", () => {
     expect(await requestsRepo.reassign(created.id, "rec-mario")).toMatchObject({ status: "asignado", collectorId: "rec-mario" });
     expect(await requestsRepo.reassign(created.id, null)).toMatchObject({ status: "solicitado", collectorId: null });
   });
+
+  it("no reasigna un pedido ya recogido", async () => {
+    const created = await requestsRepo.create(input, "rec-rosa");
+    await requestsRepo.updateStatus(created.id, "recogido");
+    await expect(requestsRepo.reassign(created.id, null)).rejects.toThrow(/ya fue recogido/);
+  });
 });

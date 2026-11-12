@@ -89,6 +89,9 @@ export const requestsRepo = {
     const all = loadRequests();
     const current = all.find((r) => r.id === id);
     if (!current) throw new Error(`No existe el pedido ${id}.`);
+    if (current.status !== "solicitado" && current.status !== "asignado") {
+      throw new Error(`El pedido ${id} ya fue recogido; no se puede reasignar.`);
+    }
     const updated: PickupRequest = { ...current, collectorId, status: collectorId ? "asignado" : "solicitado", updatedAt: new Date().toISOString() };
     writeJSON(STORAGE_KEYS.requests, all.map((r) => (r.id === id ? updated : r)));
     return updated;
@@ -178,12 +181,13 @@ const isCollectorAvailability = (v: unknown): v is CollectorAvailability =>
   isRecord(v) && isString(v.collectorId) && isZone(v.zone) && isRecord(v.weekly) &&
   Object.values(v.weekly).every((ids) => Array.isArray(ids) && ids.every(isString));
 
-const isTimeOff = (v: unknown): v is CollectorTimeOff => isRecord(v) && isString(v.id) && isString(v.collectorId) && isISODate(v.date);
+const isTimeOff = (v: unknown): v is CollectorTimeOff =>
+  isRecord(v) && isString(v.id) && isString(v.collectorId) && isISODate(v.date) && (v.reason === undefined || isString(v.reason));
 
 function loadList<T>(key: string, guard: (v: unknown) => v is T, seed: () => T[]): T[] {
   const stored = readJSON(key);
   if (Array.isArray(stored) && stored.every(guard)) return stored;
-  const fresh = seed();
+  const fresh = structuredClone(seed());
   writeJSON(key, fresh);
   return fresh;
 }
