@@ -1,3 +1,4 @@
+import { DEFAULT_SLOTS, slotLabel } from "./catalog";
 import { addDays, toISODate } from "./dates";
 import type { Actor, Lot, MaterialId, PickupRequest, RequestStatus, Role } from "@/types";
 
@@ -60,8 +61,6 @@ const SEED_ROWS: SeedRow[] = [
   [2, "com-sol", "plastico", 9, 2, "solicitado", null],
 ];
 
-const SLOTS = ["08:00 – 10:00", "10:00 – 12:00", "14:00 – 16:00"];
-
 /** Pedidos de ejemplo con fechas relativas a hoy, para que la demo nunca quede desfasada. */
 export function createSeedRequests(today: Date, actors: Actor[] = SEED_ACTORS): PickupRequest[] {
   const byId = new Map(actors.map((actor) => [actor.id, actor]));
@@ -75,7 +74,8 @@ export function createSeedRequests(today: Date, actors: Actor[] = SEED_ACTORS): 
       material,
       kg,
       scheduledDate: toISODate(scheduled),
-      slot: SLOTS[slot],
+      slotId: DEFAULT_SLOTS[slot].id,
+      slot: slotLabel(DEFAULT_SLOTS[slot]),
       address: requester?.address ?? "",
       zone: requester?.zone ?? "A",
       status,

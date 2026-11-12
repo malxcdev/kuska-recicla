@@ -33,6 +33,7 @@ describe("RequestWizard", () => {
       material: "plastico",
       kg: 11,
       scheduledDate: "2026-11-14",
+      slotId: "14-16",
       slot: "14:00 – 16:00",
       address: actor.address,
       zone: actor.zone,
@@ -50,7 +51,7 @@ describe("RequestWizard", () => {
 
   it("deshabilita las franjas sin cupos", async () => {
     const full = Array.from({ length: 3 }, (_, i) => ({
-      id: `KR-00${i}`, requesterId: "com-inti", material: "carton", kg: 5, scheduledDate: "2026-11-13", slot: "08:00 – 10:00",
+      id: `KR-00${i}`, requesterId: "com-inti", material: "carton", kg: 5, scheduledDate: "2026-11-13", slotId: "08-10", slot: "08:00 – 10:00",
       address: "", zone: "A", status: "solicitado", collectorId: null, createdAt: "", updatedAt: "",
     }) satisfies PickupRequest);
     const { user } = setup(full);

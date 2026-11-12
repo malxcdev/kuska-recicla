@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { MATERIAL_LIST, MATERIALS, MAX_KG, MIN_KG, SLOT_CAPACITY, SLOTS, ZONES } from "@/data/catalog";
+import { DEFAULT_SLOTS, MATERIAL_LIST, MATERIALS, MAX_KG, MIN_KG, SLOT_CAPACITY, SLOTS, slotLabel, ZONES } from "@/data/catalog";
 import { dayNumber, formatRelativeDay, getPickupDays, monthShort, weekdayShort } from "@/data/dates";
 import { Dialog } from "./Dialog";
 import { Icon } from "./Icon";
@@ -44,7 +44,7 @@ export function RequestWizard({ actor, requests, initialMaterial = "carton", tod
     setSubmitting(true);
     setError("");
     try {
-      await onSubmit({ requesterId: actor.id, material, kg, scheduledDate: day, slot: selectedSlot, address: actor.address, zone: actor.zone });
+      await onSubmit({ requesterId: actor.id, material, kg, scheduledDate: day, slotId: DEFAULT_SLOTS.find((s) => slotLabel(s) === selectedSlot)?.id ?? "", slot: selectedSlot, address: actor.address, zone: actor.zone });
     } catch {
       setError("No pudimos registrar el recojo. Inténtalo otra vez.");
       setSubmitting(false);

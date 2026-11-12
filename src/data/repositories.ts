@@ -10,7 +10,8 @@ import { readJSON, removeKey, writeJSON } from "./storage";
 import type { Actor, Lot, NewPickupRequest, PickupRequest, RequestStatus, Role, Session } from "@/types";
 
 export const STORAGE_KEYS = {
-  requests: "kuska:requests:v2",
+  requests: "kuska:requests:v3",
+  previousRequests: "kuska:requests:v2",
   actors: "kuska:actors:v1",
   session: "kuska:session:v1",
   legacyRequests: "kuska-requests",
@@ -30,6 +31,7 @@ export function isPickupRequest(value: unknown): value is PickupRequest {
     typeof value.material === "string" && value.material in MATERIALS &&
     typeof value.kg === "number" && value.kg > 0 &&
     typeof value.scheduledDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.scheduledDate) &&
+    typeof value.slotId === "string" &&
     typeof value.slot === "string" &&
     typeof value.zone === "string" && value.zone in ZONES &&
     typeof value.status === "string" && STATUS_FLOW.includes(value.status as RequestStatus) &&
@@ -58,6 +60,7 @@ function loadRequests(): PickupRequest[] {
   const stored = readJSON(STORAGE_KEYS.requests);
   if (Array.isArray(stored) && stored.every(isPickupRequest)) return stored;
   removeKey(STORAGE_KEYS.legacyRequests);
+  removeKey(STORAGE_KEYS.previousRequests);
   const seed = createSeedRequests(new Date(), loadActors());
   writeJSON(STORAGE_KEYS.requests, seed);
   return seed;

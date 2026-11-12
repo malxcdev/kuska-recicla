@@ -1,4 +1,4 @@
-import type { IconName, MaterialId, RequestStatus, Role, SectionId, ZoneId } from "@/types";
+import type { IconName, MaterialId, RequestStatus, Role, SectionId, SlotDefinition, ZoneId, ZoneSchedule } from "@/types";
 
 export interface MaterialInfo {
   id: MaterialId;
@@ -39,7 +39,21 @@ export const ZONES: Record<ZoneId, { name: string; area: string }> = {
 
 export const ZONE_IDS = Object.keys(ZONES) as ZoneId[];
 
-export const SLOTS = ["08:00 – 10:00", "10:00 – 12:00", "14:00 – 16:00"];
+export const DEFAULT_SLOTS: SlotDefinition[] = [
+  { id: "08-10", start: "08:00", end: "10:00" },
+  { id: "10-12", start: "10:00", end: "12:00" },
+  { id: "14-16", start: "14:00", end: "16:00" },
+];
+
+export const slotLabel = (slot: Pick<SlotDefinition, "start" | "end">) => `${slot.start} – ${slot.end}`;
+
+export const SLOTS = DEFAULT_SLOTS.map(slotLabel);
+
+export const WEEKDAY_LABELS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+export function defaultZoneSchedule(zone: ZoneId): ZoneSchedule {
+  return { zone, weekdays: [1, 2, 3, 4, 5, 6], slots: DEFAULT_SLOTS, stopsPerCollector: 3, horizonDays: 14 };
+}
 
 /** Recojos que puede atender cada franja horaria por zona. */
 export const SLOT_CAPACITY = 3;
@@ -92,6 +106,8 @@ export const SECTION_TITLES: Record<SectionId, string> = {
   indicadores: "Indicadores",
   actores: "Actores",
   perfil: "Perfil",
+  disponibilidad: "Disponibilidad",
+  calendario: "Calendario",
 };
 
 export interface Lesson {

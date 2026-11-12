@@ -52,6 +52,7 @@ const request = (overrides: Partial<PickupRequest>): PickupRequest => ({
   material: "carton",
   kg: 10,
   scheduledDate: toISODate(TODAY),
+  slotId: "10-12",
   slot: "10:00 – 12:00",
   address: "Av. Ejército 1240",
   zone: "A",
@@ -113,7 +114,7 @@ describe("acciones por rol", () => {
 describe("requestsRepo", () => {
   it("crea pedidos con código único y estado solicitado", async () => {
     const before = await requestsRepo.list();
-    const created = await requestsRepo.create({ requesterId: "com-bazar", material: "vidrio", kg: 4, scheduledDate: "2026-11-14", slot: "08:00 – 10:00", address: "Av. Ejército 1240", zone: "A" });
+    const created = await requestsRepo.create({ requesterId: "com-bazar", material: "vidrio", kg: 4, scheduledDate: "2026-11-14", slotId: "08-10", slot: "08:00 – 10:00", address: "Av. Ejército 1240", zone: "A" });
     const after = await requestsRepo.list();
     expect(created.status).toBe("solicitado");
     expect(before.some((r) => r.id === created.id)).toBe(false);
