@@ -5,10 +5,13 @@ import { Icon } from "./Icon";
 import { materialStyle } from "./materialStyle";
 import type { IconName, MaterialId, RequestStatus } from "@/types";
 
+/** Logotipo en `public/brand/kuska-mark.png` (emblema) y `kuska-logo.png` (logotipo completo). */
+export const BRAND_MARK_SRC = `${import.meta.env.BASE_URL}brand/kuska-mark.png`;
+
 export function Brand() {
   return (
     <div className="brand">
-      <span className="brand-mark"><Icon name="leaf" size={23} /></span>
+      <img className="brand-logo" src={BRAND_MARK_SRC} alt="" width={44} height={44} decoding="async" />
       <div><strong>KUSKA</strong><b>RECICLA</b><small>Reciclemos juntos</small></div>
     </div>
   );

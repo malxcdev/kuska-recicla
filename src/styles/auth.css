@@ -6,7 +6,7 @@
   .auth-story .brand strong { color: white; }
   .auth-story .brand b { color: #e4bd7c; }
   .auth-story .brand small { color: #d6e5d9; }
-  .auth-story .brand-mark { color: var(--color-green); background: white; }
+  .auth-story .brand-logo { box-shadow: 0 0 0 3px rgba(255, 255, 255, .25); }
   .auth-story-top { position: relative; z-index: 3; display: flex; justify-content: space-between; align-items: center; }
   .auth-story-top > span { color: #d6e5d9; font-size: 12px; font-weight: 800; letter-spacing: .14em; }
   .auth-story-copy { max-width: 560px; position: relative; z-index: 3; margin-top: clamp(70px, 12vh, 125px); }
