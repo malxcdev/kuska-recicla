@@ -1019,7 +1019,7 @@ const actor = SEED_ACTORS[0];
 const TODAY = new Date(2026, 10, 12, 9); // jueves
 
 const slot = (id: string, start: string, end: string, remaining: number, collectorIds = remaining > 0 ? ["rec-rosa"] : []): SlotAvailability => ({
-  slot: { id, start, end }, label: `${start} – ${end}`, collectorIds, capacity: collectorIds.length * 3, booked: 3 - remaining, remaining,
+  slot: { id, start, end }, label: `${start} – ${end}`, collectorIds, capacity: collectorIds.length * 3, booked: collectorIds.length * 3 - remaining, remaining,
 });
 
 const DAYS: DayAvailability[] = [
@@ -1676,7 +1676,7 @@ Ejecutar: `pnpm vitest run src/pages/municipio` → FAIL (la ruta redirige a Ini
 import { useId, useState, type FormEvent } from "react";
 import { Icon } from "@/components/Icon";
 import { FilterChips, PageIntro } from "@/components/ui";
-import { DAY_LEVEL_LABELS, dayLevel, getAvailability } from "@/data/availability";
+import { DAY_LEVEL_LABELS, dayLevel, getAvailability, remainingOf } from "@/data/availability";
 import { slotLabel, WEEKDAY_LABELS, ZONE_IDS, ZONES } from "@/data/catalog";
 import { addDays, dayNumber, formatRelativeDay, parseISODate, toISODate, weekdayShort } from "@/data/dates";
 import { useRequests, useSchedule, useScheduleInput, useToast } from "@/state/contexts";
@@ -1706,10 +1706,11 @@ function OccupancyGrid({ today }: { today: Date }) {
                 <th scope="row">{ZONES[zone].name}</th>
                 {days.map((day) => {
                   const capacity = day.slots.reduce((sum, s) => sum + s.capacity, 0);
-                  const booked = day.slots.reduce((sum, s) => sum + s.booked, 0);
+                  // Ocupación = capacidad - libres (ver SlotAvailability): coincide con el color de dayLevel.
+                  const used = capacity - remainingOf(day);
                   return (
-                    <td key={day.date} className={`occ ${dayLevel(day)}`} title={`${ZONES[zone].name}, ${formatRelativeDay(day.date, today)}: ${day.reason ?? `${booked} de ${capacity} cupos reservados`}`}>
-                      {day.open ? `${booked}/${capacity}` : "—"}
+                    <td key={day.date} className={`occ ${dayLevel(day)}`} title={`${ZONES[zone].name}, ${formatRelativeDay(day.date, today)}: ${day.reason ?? `${used} de ${capacity} cupos ocupados`}`}>
+                      {day.open ? `${used}/${capacity}` : "—"}
                     </td>
                   );
                 })}
