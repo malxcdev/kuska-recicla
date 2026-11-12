@@ -1,4 +1,4 @@
-# figma-make-app
+# KUSKA Recicla (figma-make-app)
 
 React + Vite + Tailwind CSS project running inside Figma Make.
 
@@ -14,8 +14,15 @@ A Vite development server is **already running** on `$PORT` (default 8443). You 
 This is the canonical project structure. Start with task-relevant files below. Only follow imports or inspect other files when required, when a documented path is missing, or when the repository contradicts this guide.
 
 - `src/main.tsx` - React entrypoint; imports `src/index.css` and mounts `src/App.tsx` into the `#root` element
-- `src/App.tsx` - Primary application component and the usual starting point for UI work
-- `src/index.css` - Global CSS entrypoint and Tailwind CSS v4 import
+- `src/App.tsx` - Router (react-router) and providers: auth routes (`/ingresar`, `/registro`, `/recuperar`) and the private area `/:section`
+- `src/app/` - App shell (`AppLayout.tsx`), per-role navigation (`navigation.ts`) and the role → section → screen map (`sections.ts`)
+- `src/pages/` - Screens, one folder per role (`comercio`, `reciclador`, `empresa`, `municipio`) plus `shared` and `auth`
+- `src/components/` - Reusable UI (Icon, Dialog, RequestTable, RequestWizard, RequestDetailDialog, `ui.tsx` primitives)
+- `src/state/` - React contexts and providers (session, requests, toasts, request flows); hooks live in `contexts.ts`
+- `src/data/` - Data layer: `repositories.ts` (async API, Web Storage today, Supabase later), catalog, mock seed, dates, stats, request actions
+- `src/types.ts` - Domain types (Actor, PickupRequest, Session, Lot…)
+- `src/index.css` - Global CSS entrypoint, Tailwind CSS v4 import and `@theme` design tokens; component styles live in `src/styles/*.css` inside `@layer components`
+- `eslint.config.js`, `vitest.config.ts` - Lint and test setup (`pnpm check` runs typecheck + lint + tests)
 - `index.html` - Vite HTML shell containing the `#root` element and loading `src/main.tsx`
 - `package.json` - Project dependencies and the Vite build, development, preview, and formatting scripts
 - `vite.config.ts` - Vite configuration with React, Tailwind CSS v4, and Figma Make plugins plus the `@` alias for `src`

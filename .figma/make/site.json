@@ -1,5 +1,7 @@
 {
-  "description": "Organiza recordatorios de medicamentos, registra las dosis tomadas y avisa cuándo es momento de renovar las recetas.",
+  "title": "KUSKA Recicla · Reciclemos juntos",
+  "description": "Programa el recojo de tus residuos aprovechables en Santiago, Cusco. KUSKA conecta comercios, recicladores, empresas valorizadoras y el municipio para medir el impacto de cada kilo recuperado.",
+  "language": "es",
   "robots": {
     "index": false
   },
