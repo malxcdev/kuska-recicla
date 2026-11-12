@@ -26,6 +26,14 @@ pnpm check    # tipos + lint + tests
 pnpm build    # genera dist/
 ```
 
+## Supabase
+
+1. Ejecuta `supabase/migrations/20261112000000_kuska_inicial.sql` en **Supabase → SQL Editor**.
+2. Copia `.env.example` como `.env` y completa `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` (Project Settings → API). Usa solo la clave pública *anon*, nunca la *service_role*.
+3. Comprueba la conexión con `pnpm supabase:check`.
+
+El cliente queda listo en `src/lib/supabase.ts`. Por ahora la app sigue usando los datos de demo; en Vercel, agrega las mismas dos variables en **Settings → Environment Variables**.
+
 ## Stack
 
 React 19 · react-router 8 · TypeScript · Vite 8 · Tailwind CSS 4 · Vitest + Testing Library.
