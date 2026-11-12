@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { getDayAvailability, pickCollector } from "@/data/availability";
 import type { RequestAction } from "@/data/requestActions";
 import { useRequests, useScheduleInput, useSession, useToast } from "./contexts";
@@ -7,7 +7,10 @@ import type { PickupRequest } from "@/types";
 export interface ReleaseResult {
   request: PickupRequest;
   next: string | null;
+  error?: string;
 }
+
+const errorMessage = (error: unknown) => (error instanceof Error ? error.message : "No se pudo completar la acción.");
 
 /** Ejecuta acciones sobre pedidos, incluida la liberación con reasignación automática. */
 export function useRequestOperations() {
@@ -22,12 +25,23 @@ export function useRequestOperations() {
       let pool = requests;
       const results: ReleaseResult[] = [];
       for (const request of list) {
-        const others = pool.filter((r) => r.id !== request.id);
-        const ctx = contextFor(request.zone, others);
-        const day = getDayAvailability(request.scheduledDate, ctx);
-        const next = pickCollector(day, request.slotId, others, ctx.schedule.stopsPerCollector, request.collectorId);
-        await reassign(request.id, next);
-        pool = pool.map((r): PickupRequest => (r.id === request.id ? { ...r, collectorId: next, status: next ? "asignado" : "solicitado" } : r));
+        // Se usa la versión más reciente del pedido; si ya cambió de estado, no se toca.
+        const current = pool.find((r) => r.id === request.id);
+        if (!current || current.status !== "asignado") {
+          results.push({ request, next: null, error: `${request.id} ya no está asignado.` });
+          continue;
+        }
+        const others = pool.filter((r) => r.id !== current.id);
+        const ctx = contextFor(current.zone, others);
+        const day = getDayAvailability(current.scheduledDate, ctx);
+        const next = pickCollector(day, current.slotId, others, ctx.schedule.stopsPerCollector, current.collectorId);
+        try {
+          await reassign(current.id, next);
+        } catch (error) {
+          results.push({ request, next: null, error: errorMessage(error) });
+          continue;
+        }
+        pool = pool.map((r): PickupRequest => (r.id === current.id ? { ...r, collectorId: next, status: next ? "asignado" : "solicitado" } : r));
         results.push({ request, next });
       }
       return results;
@@ -36,23 +50,30 @@ export function useRequestOperations() {
   );
 
   const describeRelease = useCallback(
-    ({ request, next }: ReleaseResult) =>
-      next ? `Reasignamos ${request.id} a ${actorsById.get(next)?.name ?? "otro reciclador"}.` : `${request.id} volvió a la lista de disponibles de la zona.`,
+    ({ request, next, error }: ReleaseResult) => {
+      if (error) return error;
+      return next ? `Reasignamos ${request.id} a ${actorsById.get(next)?.name ?? "otro reciclador"}.` : `${request.id} volvió a la lista de disponibles de la zona.`;
+    },
     [actorsById],
   );
 
   const run = useCallback(
     async (request: PickupRequest, action: RequestAction) => {
-      if (action.id === "liberar") {
-        const [result] = await releaseMany([request]);
-        announce(describeRelease(result));
-        return;
+      // Los errores se avisan al usuario y no se relanzan; quien llama libera su estado "ocupado".
+      try {
+        if (action.id === "liberar") {
+          const [result] = await releaseMany([request]);
+          announce(describeRelease(result));
+          return;
+        }
+        await updateStatus(request.id, action.nextStatus, action.collectorId);
+        announce(action.successMessage);
+      } catch (error) {
+        announce(errorMessage(error));
       }
-      await updateStatus(request.id, action.nextStatus, action.collectorId);
-      announce(action.successMessage);
     },
     [releaseMany, describeRelease, updateStatus, announce],
   );
 
-  return { run, releaseMany, describeRelease };
+  return useMemo(() => ({ run, releaseMany, describeRelease }), [run, releaseMany, describeRelease]);
 }
