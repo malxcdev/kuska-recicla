@@ -4,19 +4,48 @@ import { SessionContext, type SessionValue } from "./contexts";
 import type { Actor, Session } from "@/types";
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(() => authRepo.getSession());
+  const [session, setSession] = useState<Session | null>(null);
   const [actors, setActors] = useState<Actor[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let active = true;
-    actorsRepo.list().then((list) => {
+
+    const loadActors = async () => {
+      try {
+        const list = await actorsRepo.list();
+        if (active) setActors(list);
+      } catch {
+        if (active) setActors([]);
+      }
+    };
+
+    // Restaurar la sesión es asíncrono: con Supabase hay que validar el token guardado.
+    const hydrate = async () => {
+      try {
+        const current = await authRepo.getSession();
+        if (!active) return;
+        setSession(current);
+        if (current) await loadActors();
+      } catch {
+        if (active) setSession(null);
+      } finally {
+        if (active) setReady(true);
+      }
+    };
+
+    void hydrate();
+
+    // Cierre de sesión en otra pestaña, token vencido sin refresco, etc.
+    const unsubscribe = authRepo.onSessionChange((next) => {
       if (!active) return;
-      setActors(list);
-      setReady(true);
+      setSession(next);
+      if (next) void loadActors();
     });
+
     return () => {
       active = false;
+      unsubscribe();
     };
   }, []);
 
@@ -24,13 +53,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const actor = session ? (actorsById.get(session.actorId) ?? null) : null;
 
   const signIn = useCallback(async (input: SignInInput) => {
-    setSession(await authRepo.signIn(input));
+    const created = await authRepo.signIn(input);
+    setSession(created);
+    try {
+      setActors(await actorsRepo.list());
+    } catch {
+      // El perfil ya llegó con la sesión; la lista completa puede esperar.
+    }
   }, []);
 
   const signUp = useCallback(async (input: SignUpInput) => {
     const { session: created } = await authRepo.signUp(input);
-    setActors(await actorsRepo.list());
-    setSession(created);
+    // Con confirmación de correo pendiente no hay sesión todavía.
+    if (created) setSession(created);
+    try {
+      setActors(await actorsRepo.list());
+    } catch {
+      // Sin sesión, RLS no deja listar perfiles: se recarga al ingresar.
+    }
   }, []);
 
   const signOut = useCallback(async () => {

@@ -4,7 +4,7 @@ import { Icon } from "@/components/Icon";
 import { TermsDialog } from "@/components/InfoDialogs";
 import { Brand } from "@/components/ui";
 import { ACCOUNT_TYPES } from "@/data/catalog";
-import { authRepo } from "@/data/repositories";
+import { authRepo, dataBackend, EmailConfirmationRequired } from "@/data/repositories";
 import { useSession } from "@/state/contexts";
 import type { Role } from "@/types";
 
@@ -46,6 +46,11 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
         await signIn({ email, password, role: accountType, remember: data.get("remember") === "on" });
       }
     } catch (caught) {
+      // Cuenta creada, pero Supabase exige confirmar el correo antes de entrar.
+      if (caught instanceof EmailConfirmationRequired) {
+        setMessage(caught.message);
+        return;
+      }
       setError(caught instanceof Error ? caught.message : "No pudimos completar la operación. Inténtalo otra vez.");
     } finally {
       setSubmitting(false);
@@ -141,7 +146,7 @@ export function AuthPage({ mode }: { mode: AuthMode }) {
             </button>
           </form>
 
-          {mode === "login" && <div className="demo-access"><Icon name="spark" size={16} /><span><strong>¿Solo quieres explorar?</strong> Usa cualquier correo y una contraseña de 6 caracteres o más para entrar a la demo.</span></div>}
+          {mode === "login" && dataBackend === "demo" && <div className="demo-access"><Icon name="spark" size={16} /><span><strong>¿Solo quieres explorar?</strong> Usa cualquier correo y una contraseña de 6 caracteres o más para entrar a la demo.</span></div>}
           <p className="auth-help">¿Necesitas ayuda? <a href="tel:984000123">Llámanos al 984 000 123</a></p>
         </div>
       </section>

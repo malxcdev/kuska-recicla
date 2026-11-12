@@ -4,6 +4,7 @@ import { Icon } from "@/components/Icon";
 import { Avatar, Brand, ProgressBar } from "@/components/ui";
 import { SECTION_TITLES } from "@/data/catalog";
 import { greeting } from "@/data/dates";
+import { canResetDemo } from "@/data/repositories";
 import { requestsForSession } from "@/data/requestActions";
 import { formatKg, monthProgress, summarizeImpact } from "@/data/stats";
 import { useAuthenticated, useRequestFlow, useRequests, useResetDemo, useToast } from "@/state/contexts";
@@ -99,7 +100,7 @@ export function AppLayout() {
             <h1>{title}</h1>
           </div>
           <div className="top-actions">
-            <button type="button" className="reset-button" onClick={handleReset}><Icon name="reset" size={16} /> Reiniciar demo</button>
+            {canResetDemo && <button type="button" className="reset-button" onClick={handleReset}><Icon name="reset" size={16} /> Reiniciar demo</button>}
             <button type="button" className="icon-button" aria-label="Notificaciones" onClick={() => announce("No tienes notificaciones nuevas.")}><Icon name="bell" /></button>
             <button type="button" className="primary-button" onClick={() => activate(config.primaryAction)}>
               <Icon name={config.primaryAction.icon} size={18} /> {config.primaryAction.label}

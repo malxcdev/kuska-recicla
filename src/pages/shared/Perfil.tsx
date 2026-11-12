@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { Icon } from "@/components/Icon";
 import { Avatar, PageIntro } from "@/components/ui";
 import { ROLE_LABELS, ZONE_IDS, ZONES } from "@/data/catalog";
+import { canResetDemo } from "@/data/repositories";
 import { useAuthenticated, useResetDemo, useToast } from "@/state/contexts";
 import type { ZoneId } from "@/types";
 
@@ -69,9 +70,11 @@ export function Perfil() {
           <h3>{actor.name}</h3>
           <p>{ROLE_LABELS[session.role]} · {ZONES[actor.zone].name}</p>
           <div className="mt-4 grid w-full gap-2">
-            <button type="button" className="back-button min-h-11" onClick={async () => { await resetDemo(); announce("Datos de demostración restaurados."); }}>
-              <Icon name="reset" size={16} /> Reiniciar demo
-            </button>
+            {canResetDemo && (
+              <button type="button" className="back-button min-h-11" onClick={async () => { await resetDemo(); announce("Datos de demostración restaurados."); }}>
+                <Icon name="reset" size={16} /> Reiniciar demo
+              </button>
+            )}
             <button type="button" className="primary-button" onClick={async () => { await signOut(); navigate("/ingresar"); }}>
               <Icon name="logout" size={16} /> Cerrar sesión
             </button>
